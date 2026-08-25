@@ -20,10 +20,12 @@
 <body>
   <div>
     <header class="p-3 bg-indigo-50 flex justify-between">
-      <div>
+      <div id="header-togglebutton">
         <input type="checkbox" id="toggle" hidden>
         <label for="toggle" class="toggleSwitch">
           <span class="toggleButton"></span>
+          <span class="text-2xl ml-2">2D</span>
+          <span class="text-2xl ml-3">3D</span>
         </label>
       </div>
       <div 
@@ -33,16 +35,18 @@
         Github Daily Log
       </div>
       <div>
-        <img class="
-          inline-flex 
-          object-cover 
-          border-4 
-          border-gray-300 
-          rounded-full
-          h-10" 
-          src="../static/image/profile_default.png" 
-          alt=""
-        >
+        <button class="">
+          <img class="
+            inline-flex 
+            object-cover 
+            border-4 
+            border-gray-300 
+            rounded-full
+            h-10" 
+            src="../static/image/profile_default.png" 
+            alt=""
+          >
+        </button>
       </div>
     </header>
     <div class="grid grid-cols-[25rem_auto_25rem] justify-stretch">
