@@ -1,3 +1,47 @@
 body {
     margin: 0;
 }
+
+
+#github_daily_log {
+  font-family: "Dancing Script", cursive;
+  font-optical-sizing: 5rem;
+  font-weight: 10rem;
+  font-style: bold;
+}
+
+/* toggle switch */
+.toggleSwitch {
+  width: 5.7rem;
+  height: 2.2rem;
+  display: block;
+  position: relative;
+  border-radius: 5px;
+  background-color: #eaeaea;
+  box-shadow: 0 0 16px 3px rgba(0 0 0 / 15%);
+  cursor: pointer;
+}
+
+.toggleSwitch .toggleButton {
+  width: 40px;
+  height: 30px;
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  transform: translateY(-50%);
+  border-radius: 10%;
+  background: #fffd;
+}
+
+#toggle:checked ~ .toggleSwitch {
+  background: #eaeaea;
+}
+
+#toggle:checked ~ .toggleSwitch .toggleButton {
+  left: calc(100% - 44px);
+  background: #fff;
+}
+
+.toggleSwitch, .toggleButton {
+  transition: all 0.2s ease-in;
+}

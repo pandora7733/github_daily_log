@@ -3,14 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- tailwindcss -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <!-- local css -->
   <link rel="stylesheet" href="/src/static/css/index.css">
+
+  <!-- google font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap" rel="stylesheet">
+
   <title>Document</title>
 </head>
 <body>
   <div>
-    <header class="bg-red-500 p-4">
-      헤더
+    <header class="p-3 bg-indigo-50 flex justify-between">
+      <div>
+        <input type="checkbox" id="toggle" hidden>
+        <label for="toggle" class="toggleSwitch">
+          <span class="toggleButton"></span>
+        </label>
+      </div>
+      <div 
+        id="github_daily_log"
+        class="text-3xl"
+      >
+        Github Daily Log
+      </div>
+      <div>
+        <img class="
+          inline-flex 
+          object-cover 
+          border-4 
+          border-gray-300 
+          rounded-full
+          h-10" 
+          src="../static/image/profile_default.png" 
+          alt=""
+        >
+      </div>
     </header>
     <div class="grid grid-cols-[25rem_auto_25rem] justify-stretch">
       <div id="sidebar-left" class="bg-blue-500 p-4">
