@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" href="/src/static/css/index.css">
+  <title>Document</title>
+</head>
+<body>
+  <div>
+    <header class="header p-4">
+      qwer
+    </header>
+    <div class="grid grid-cols-[25rem_auto_25rem] justify-stretch">
+      <div id="sidebar-left" class="left-sidebar m-4">
+        qwer
+      </div>
+
+      <div id="content" class="m-4">
+        <div class="profile-group-main flex gap-4">
+          <div class="profile-group my-2">
+            <label class="display-name font-bold">
+              Profile picture
+            </label>
+            <div class="mt-2">
+              <img class="profile-img rounded-full" src="https://avatars.githubusercontent.com/u/150431566?s=400&v=4" width="150" height="150">
+              <button class="absolute top-55 left-130 bg-blue-800 hover:bg-blue-700 active:bg-blue-900 text-white px-2 py-0.5 rounded-lg transition">
+                <a href="#">edit</a>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group flex-1">
+            <div class="form-group">
+              <div class="form-group-header my-2">
+                <label class="display-name font-bold">
+                  Name
+                </label>
+              </div>
+              <div class="form-grup-body my-2">
+                <input placeholder="input" class="form-control border border-gray-500 rounded-lg px-2 w-full">
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="form-group-header my-2">
+                <label class="display-name font-bold">
+                  Bio
+                </label>
+              </div>
+              <div class="form-grup-body my-2">
+                <textarea placeholder="input" class="forom-control border border-gray-500 rounded-lg px-2 h-21 w-full"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-info text-right text-size text-[12px]">
+          <p>누적 활동일: <span id="active-date">-</span>일 | 최초 가입일: <time id="join-date">-</time></p>
+        </div>
+
+        <div class="repos-group">
+          <label class="display-name font-bold">
+            Repositories
+          </label>
+          <div class="grid grid-cols-2 gap-4 my-2">
+            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
+              <div class="repo-item flex">
+                <span class="repo-names font-medium text-blue-800">
+                  <a href="#"><span id="repo-name">Name/repo01</span></a>
+                </span>
+                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
+                  <span id="repo-label">Public</span>
+                </span>
+              </div>
+              <div class="p-4.5"></div>
+              <span class="repo-lang text-[12px]">
+                  Python
+              </span>
+            </div>
+
+            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
+              <div class="repo-item flex">
+                <span class="repo-names font-medium text-blue-800">
+                  <a href="#"><span id="repo-name">Name/repo01</span></a>
+                </span>
+                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
+                  <span id="repo-label">Public</span>
+                </span>
+              </div>
+              <div class="p-4.5"></div>
+              <span class="repo-lang text-[12px]">
+                  Python
+              </span>
+            </div>
+
+            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
+              <div class="repo-item flex">
+                <span class="repo-names font-medium text-blue-800">
+                  <a href="#"><span id="repo-name">Name/repo01</span></a>
+                </span>
+                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
+                  <span id="repo-label">Public</span>
+                </span>
+              </div>
+              <div class="p-4.5"></div>
+              <span class="repo-lang text-[12px]">
+                  Python
+              </span>
+            </div>
+
+            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
+              <div class="repo-item flex">
+                <span class="repo-names font-medium text-blue-800">
+                  <a href="#"><span id="repo-name">Name/repo01</span></a>
+                </span>
+                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
+                  <span id="repo-label">Public</span>
+                </span>
+              </div>
+              <div class="p-4.5"></div>
+              <span class="repo-lang text-[12px]">
+                  Python
+              </span>
+            </div>
+
+            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
+              <div class="repo-item flex">
+                <span class="repo-names font-medium text-blue-800">
+                  <a href="#"><span id="repo-name">Name/repo01</span></a>
+                </span>
+                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
+                  <span id="repo-label">Public</span>
+                </span>
+              </div>
+              <div class="p-4.5"></div>
+              <span class="repo-lang text-[12px]">
+                  Python
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="sidebar-right" class="right-sidebar m-4">
+        qwer
+      </div>
+    </div>
+  </div>
+</body>
+</html>
