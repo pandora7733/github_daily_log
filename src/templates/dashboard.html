@@ -18,8 +18,8 @@
   <title>Document</title>
 </head>
 <body>
-  <div>
-    <header class="p-3 bg-indigo-50 flex justify-between">
+  <div class="h-screen overflow-hidden flex flex-col">
+    <header class="p-2 bg-indigo-50 flex justify-between border-b-3 border-b-slate-400">
       <div id="header-togglebutton">
         <input type="checkbox" id="toggle" hidden>
         <label for="toggle" class="toggleSwitch">
@@ -30,7 +30,7 @@
       </div>
       <div 
         id="github_daily_log"
-        class="text-3xl"
+        class="text-4xl font-bold"
       >
         Github Daily Log
       </div>
@@ -49,17 +49,213 @@
         </button>
       </div>
     </header>
-    <div class="grid grid-cols-[25rem_auto_25rem] justify-stretch">
-      <div id="sidebar-left" class="bg-blue-500 p-4">
-        왼쪽 사이드 바
+    <div class="grid grid-cols-[25rem_auto_25rem] justify-stretch flex flex-1 min-h-0">
+      <div id="sidebar-left" class="flex flex-col border-r-3 border-r-slate-400 flex-1 overflow-y-auto hide-scrollbar">
+
+        <div class="relative flex flex-col">
+          <div class="absolute left-12 top-0 bottom-0 w-1 bg-gray-300 pointer-events-none"></div>
+
+        <div class="relative flex flex-col">
+          <div class="w-25 py-3 text-center">
+            <span class="text-xl font-semibold bg-white pb-2">today</span>
+          </div>
+
+          <div class="ml-14 pl-6 pr-6 flex flex-col gap-1">
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="relative flex flex-col">
+          <div class="w-25 py-3 text-center">
+            <span class="text-xl font-semibold bg-white pb-2">a week</span>
+          </div>
+
+          <div class="ml-14 pl-6 pr-6 flex flex-col gap-1">
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="relative flex flex-col">
+          <div class="w-25 py-3 text-center">
+            <span class="text-xl font-semibold bg-white pb-2">a month</span>
+          </div>
+
+          <div class="ml-14 pl-6 pr-6 flex flex-col gap-1">
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="relative flex flex-col">
+          <div class="w-25 py-3 text-center">
+            <span class="text-xl font-semibold bg-white pb-2">a year</span>
+          </div>
+
+          <div class="ml-14 pl-6 pr-6 flex flex-col gap-1">
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+            
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+            
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+            
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+            
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+            
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+            
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+
+            <button class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100">
+              <span class="font-semibold text-lg">2026.09.10</span>
+              <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">title::commit (5)</span>
+            </button>
+          </div>
+        </div>
+        </div>
       </div>
-      <div id="content" class="bg-green-500 p-4">
+      <div id="content" class="bg-green-500 p-4 flex-1 overflow-y-auto hide-scrollbar">
         내용
       </div>
-      <div id="sidebar-right" class="bg-yellow-500 p-4">
-        사이드바 오른쪽
+      <div id="sidebar-right" class="bg-yellow-500 overflow-y-auto hide-scrollbar">
+        <span class="text-xl p-3 font-semibold">POST IT</span>
       </div>
     </div>
   </div>
 </body>
 </html>
+
