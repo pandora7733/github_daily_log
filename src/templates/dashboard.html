@@ -253,16 +253,120 @@
         내용
       </div>
       <div id="sidebar-right" class="overflow-y-auto hide-scrollbar border-l-3 border-l-slate-400">
-        <div class="flex items-center px-3 py-3">
+        <div class="flex items-center px-3 pt-3">
           <span class="text-xl font-semibold shrink-0">post it</span>
           <div class="flex-1 h-1 bg-gray-300 ml-3 mt-1"></div>
         </div>
-        <div>
+        <div class="p-3">
+          <div
+            id="memo"
+            class="relative w-92 min-h-60 bg-yellow-200 p-4
+                  shadow-[4px_6px_12px_rgba(0,0,0,0.15)]
+                  overflow-hidden mb-8"
+          >
+            <span class="block font-semibold text-gray-700 mb-3">
+              memo
+            </span>
 
+            <textarea
+              id="memoInput"
+              name="memo"
+              rows="1"
+              placeholder="메모를 입력하세요"
+              class="w-full bg-transparent
+                    outline-none resize-none overflow-hidden
+                    text-gray-700
+                    placeholder-gray-500"
+            ></textarea>
+
+            <!-- 접힌 부분 버튼 -->
+            <button
+              type="button"
+              class="absolute bottom-0 right-0
+                    w-10 h-10
+                    bg-yellow-300
+                    hover:bg-yellow-400
+                    transition-colors
+                    [clip-path:polygon(100%_0,0_100%,100%_100%)]"
+              aria-label="메모 기능"
+            ></button>
+          </div>
+
+
+          <div
+            id="memo"
+            class="relative w-92 min-h-60 bg-yellow-200 p-4
+                  shadow-[4px_6px_12px_rgba(0,0,0,0.15)]
+                  overflow-hidden mb-8"
+          >
+            <span class="block font-semibold text-gray-700 mb-3">
+              memo
+            </span>
+
+            <textarea
+              id="memoInput"
+              name="memo"
+              rows="1"
+              placeholder="메모를 입력하세요"
+              class="w-full bg-transparent
+                    outline-none resize-none overflow-hidden
+                    text-gray-700
+                    placeholder-gray-500"
+            ></textarea>
+
+            <!-- 접힌 부분 버튼 -->
+            <button
+              type="button"
+              class="absolute bottom-0 right-0
+                    w-10 h-10
+                    bg-yellow-300
+                    hover:bg-yellow-400
+                    transition-colors
+                    [clip-path:polygon(100%_0,0_100%,100%_100%)]"
+              aria-label="메모 기능"
+            ></button>
+          </div>
+
+
+          <div
+            id="memo"
+            class="relative w-92 min-h-60 bg-yellow-200 p-4
+                  shadow-[4px_6px_12px_rgba(0,0,0,0.15)]
+                  overflow-hidden mb-8"
+          >
+            <span class="block font-semibold text-gray-700 mb-3">
+              memo
+            </span>
+
+            <textarea
+              id="memoInput"
+              name="memo"
+              rows="1"
+              placeholder="메모를 입력하세요"
+              class="w-full bg-transparent
+                    outline-none resize-none overflow-hidden
+                    text-gray-700
+                    placeholder-gray-500"
+            ></textarea>
+
+            <!-- 접힌 부분 버튼 -->
+            <button
+              type="button"
+              class="absolute bottom-0 right-0
+                    w-10 h-10
+                    bg-yellow-300
+                    hover:bg-yellow-400
+                    transition-colors
+                    [clip-path:polygon(100%_0,0_100%,100%_100%)]"
+              aria-label="메모 기능"
+            ></button>
+          </div>
         </div>
       </div>
     </div>
   </div>
+
+  <script src="../static/js/post_it.js"></script>
 </body>
 </html>
 
