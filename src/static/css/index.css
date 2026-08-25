@@ -10,6 +10,16 @@ body {
   font-style: bold;
 }
 
+/* 스크롤 바 삭제 */
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* toggle switch */
 #header-togglebutton {
   display: flex;
