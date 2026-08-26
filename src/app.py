@@ -603,6 +603,52 @@ def create_postit():
     }), 201
 
 
+@app.route("/api/postits/<postit_id>", methods=["PUT"])
+def update_postit(postit_id):
+    """현재 로그인한 사용자의 post-it 내용을 수정한다."""
+    user_id = get_session_user_id()
+    if not is_valid_user_id(user_id) or not ObjectId.is_valid(postit_id):
+        return jsonify({"error": "잘못된 요청입니다."}), 400
+
+    data = request.get_json(silent=True) or {}
+    content = data.get("content")
+    if not isinstance(content, str) or not content.strip():
+        return jsonify({"error": "post-it 내용을 입력해 주세요."}), 400
+
+    updated = get_retro_model().update_postit(
+        postit_id=postit_id,
+        user_id=user_id,
+        content=content,
+    )
+    if not updated:
+        return jsonify({"error": "post-it을 찾을 수 없습니다."}), 404
+
+    return jsonify({
+        "success": True,
+        "postit": {
+            "id": postit_id,
+            "content": content,
+        },
+    })
+
+
+@app.route("/api/postits/<postit_id>", methods=["DELETE"])
+def delete_postit(postit_id):
+    """현재 로그인한 사용자의 post-it을 삭제한다."""
+    user_id = get_session_user_id()
+    if not is_valid_user_id(user_id) or not ObjectId.is_valid(postit_id):
+        return jsonify({"error": "잘못된 요청입니다."}), 400
+
+    deleted = get_retro_model().delete_postit(
+        postit_id=postit_id,
+        user_id=user_id,
+    )
+    if not deleted:
+        return jsonify({"error": "post-it을 찾을 수 없습니다."}), 404
+
+    return jsonify({"success": True})
+
+
 @app.route("/api/retrospectives", methods=["POST"])
 def create_retrospective():
     """content 영역의 Note를 현재 로그인한 사용자의 회고록으로 저장한다."""
