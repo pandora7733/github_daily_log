@@ -133,9 +133,28 @@ def github_repos():
         }
     )
 
-    print("Status:", response.status_code)
-    print("OAuth Scopes:", response.headers.get("X-OAuth-Scopes"))
-    print("Response:", response.json())
+    return jsonify(response.json())
+
+@app.route("/api/user")
+def github_user():
+
+    access_token = session.get("github_access_token")
+
+    if not access_token:
+        print("token을 못찾음")
+        return redirect("/")
+
+    response = requests.get(
+        "https://api.github.com/user",
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "Accept": "application/vnd.github+json"
+        },
+        params={
+            "visibility": "all",
+            "per_page": 100
+        }
+    )
 
     return jsonify(response.json())
 
