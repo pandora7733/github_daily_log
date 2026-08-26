@@ -34,7 +34,7 @@ def confirm_email():
         return jsonify({
             'available' : True
         })
-        
+
 
 @app.route('/login', methods=['GET'])
 def login():
