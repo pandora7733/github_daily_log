@@ -12,23 +12,39 @@ mongo_db = os.getenv('MONGO_DB')
 
 app = Flask(__name__)
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def home():
     return "Hello, Flask!"
 
-@app.route('/register')
+@app.route('/register', methods=['GET'])
 def register():
     return render_template('register.html')
 
-@app.route('/login')
+@app.route('/register', methods=['POST'])
+def confirm_email():
+    data = req.json
+    user_email - data.get('userEmail')
+
+    user = User.query.filter_by(email=user_email).first()
+    if user:
+        return jsonify({
+            'available' : False
+        })
+    else:
+        return jsonify({
+            'available' : True
+        })
+        
+
+@app.route('/login', methods=['GET'])
 def login():
     return render_template('login.html')
 
-@app.route('/dashboard')
+@app.route('/dashboard', methods=['GET'])
 def dashboard():
     return render_template('dashboard.html')
 
-@app.route('/dashboard/profile')
+@app.route('/dashboard/profile', methods=['GET'])
 def profile():
     return render_template('profile.html')
 
