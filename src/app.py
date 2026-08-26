@@ -16,6 +16,10 @@ app = Flask(__name__)
 def home():
     return "Hello, Flask!"
 
+@app.route('/register')
+def register():
+    return render_template('register.html')
+
 @app.route('/login')
 def login():
     return render_template('login.html')
@@ -24,9 +28,11 @@ def login():
 def dashboard():
     return render_template('dashboard.html')
 
-@app.route('/register')
-def register():
-    return render_template('register.html')
+@app.route('/dashboard/profile')
+def profile():
+    return render_template('profile.html')
+
+
 
 if __name__ == '__main__':
     app.run(host='localhost', port=port, debug=True)
