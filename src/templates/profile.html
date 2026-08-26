@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+  <title>Document</title>
+</head>
+<body>
+  <div>
+    <header class="sticky header bg-red-500 p-4 top-0 z-50">
+      qwer
+    </header>
+    <div class="justify-center flex">
+      <div id="content" class="w-[655px]">
+        <div class="profile-group-main flex gap-4">
+          <div class="profile-group my-2">
+            <label class="display-name font-bold">
+              Profile picture
+            </label>
+            <div class="group relative cursor-pointer mt-2">
+              <img id="profile-img" class="rounded-xl bg-white group-hover:brightness-50 transition" src="https://api.dicebear.com/10.x/identicon/svg?seed=default" width="150" height="150">
+              <span id="play-dice!" class="absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition">
+                play dice!
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group flex-1">
+            <div class="form-group">
+              <div class="form-group-header my-2">
+                <label class="display-name font-bold">
+                  Name
+                </label>
+              </div>
+              <div class="form-grup-body my-2">
+                <input placeholder="input" class="form-control border border-gray-500 rounded-lg px-2 w-full">
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="form-group-header my-2">
+                <label class="display-name font-bold">
+                  Bio
+                </label>
+              </div>
+              <div class="form-grup-body my-2">
+                <textarea placeholder="input" class="forom-control border border-gray-500 rounded-lg px-2 h-21 w-full"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-info text-right text-size text-[12px]">
+          <p>누적 활동일: <span id="active-date">-</span>일 | 최초 가입일: <time id="join-date">-</time></p>
+        </div>
+
+        <div class="repos-group">
+          <label class="display-name font-bold">
+            Repositories
+          </label>
+          <div class="grid grid-cols-2 gap-4 my-2">
+
+            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
+              <div class="repo-item flex">
+                <span class="repo-names font-medium text-blue-800">
+                  <a href="#"><span id="repo-name">Name/repo01</span></a>
+                </span>
+                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
+                  <span id="repo-label">Public</span>
+                </span>
+              </div>
+              <div class="p-4.5"></div>
+              <span class="repo-lang text-[12px]">
+                  Python
+              </span>
+            </div>
+
+            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
+              <div class="repo-item flex">
+                <span class="repo-names font-medium text-blue-800">
+                  <a href="#"><span id="repo-name">Name/repo01</span></a>
+                </span>
+                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
+                  <span id="repo-label">Public</span>
+                </span>
+              </div>
+              <div class="p-4.5"></div>
+              <span class="repo-lang text-[12px]">
+                  Python
+              </span>
+            </div>
+
+            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
+              <div class="repo-item flex">
+                <span class="repo-names font-medium text-blue-800">
+                  <a href="#"><span id="repo-name">Name/repo01</span></a>
+                </span>
+                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
+                  <span id="repo-label">Public</span>
+                </span>
+              </div>
+              <div class="p-4.5"></div>
+              <span class="repo-lang text-[12px]">
+                  Python
+              </span>
+            </div>
+
+            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
+              <div class="repo-item flex">
+                <span class="repo-names font-medium text-blue-800">
+                  <a href="#"><span id="repo-name">Name/repo01</span></a>
+                </span>
+                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
+                  <span id="repo-label">Public</span>
+                </span>
+              </div>
+              <div class="p-4.5"></div>
+              <span class="repo-lang text-[12px]">
+                  Python
+              </span>
+            </div>
+
+            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
+              <div class="repo-item flex">
+                <span class="repo-names font-medium text-blue-800">
+                  <a href="#"><span id="repo-name">Name/repo01</span></a>
+                </span>
+                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
+                  <span id="repo-label">Public</span>
+                </span>
+              </div>
+              <div class="p-4.5"></div>
+              <span class="repo-lang text-[12px]">
+                  Python
+              </span>
+            </div>
+
+            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
+              <div class="repo-item flex">
+                <span class="repo-names font-medium text-blue-800">
+                  <a href="#"><span id="repo-name">Name/repo01</span></a>
+                </span>
+                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
+                  <span id="repo-label">Public</span>
+                </span>
+              </div>
+              <div class="p-4.5"></div>
+              <span class="repo-lang text-[12px]">
+                  Python
+              </span>
+            </div>
+
+            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
+              <div class="repo-item flex">
+                <span class="repo-names font-medium text-blue-800">
+                  <a href="#"><span id="repo-name">Name/repo01</span></a>
+                </span>
+                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
+                  <span id="repo-label">Public</span>
+                </span>
+              </div>
+              <div class="p-4.5"></div>
+              <span class="repo-lang text-[12px]">
+                  Python
+              </span>
+            </div>
+
+            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
+              <div class="repo-item flex">
+                <span class="repo-names font-medium text-blue-800">
+                  <a href="#"><span id="repo-name">Name/repo01</span></a>
+                </span>
+                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
+                  <span id="repo-label">Public</span>
+                </span>
+              </div>
+              <div class="p-4.5"></div>
+              <span class="repo-lang text-[12px]">
+                  Python
+              </span>
+            </div>
+
+            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
+              <div class="repo-item flex">
+                <span class="repo-names font-medium text-blue-800">
+                  <a href="#"><span id="repo-name">Name/repo01</span></a>
+                </span>
+                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
+                  <span id="repo-label">Public</span>
+                </span>
+              </div>
+              <div class="p-4.5"></div>
+              <span class="repo-lang text-[12px]">
+                  Python
+              </span>
+            </div>
+
+            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
+              <div class="repo-item flex">
+                <span class="repo-names font-medium text-blue-800">
+                  <a href="#"><span id="repo-name">Name/repo01</span></a>
+                </span>
+                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
+                  <span id="repo-label">Public</span>
+                </span>
+              </div>
+              <div class="p-4.5"></div>
+              <span class="repo-lang text-[12px]">
+                  Python
+              </span>
+            </div>
+
+            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
+              <div class="repo-item flex">
+                <span class="repo-names font-medium text-blue-800">
+                  <a href="#"><span id="repo-name">Name/repo01</span></a>
+                </span>
+                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
+                  <span id="repo-label">Public</span>
+                </span>
+              </div>
+              <div class="p-4.5"></div>
+              <span class="repo-lang text-[12px]">
+                  Python
+              </span>
+            </div>
+
+            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
+              <div class="repo-item flex">
+                <span class="repo-names font-medium text-blue-800">
+                  <a href="#"><span id="repo-name">Name/repo01</span></a>
+                </span>
+                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
+                  <span id="repo-label">Public</span>
+                </span>
+              </div>
+              <div class="p-4.5"></div>
+              <span class="repo-lang text-[12px]">
+                  Python
+              </span>
+            </div>
+
+            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
+              <div class="repo-item flex">
+                <span class="repo-names font-medium text-blue-800">
+                  <a href="#"><span id="repo-name">Name/repo01</span></a>
+                </span>
+                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
+                  <span id="repo-label">Public</span>
+                </span>
+              </div>
+              <div class="p-4.5"></div>
+              <span class="repo-lang text-[12px]">
+                  Python
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../static/js/profile_index.js"></script>
+
+</body>
+</html>
