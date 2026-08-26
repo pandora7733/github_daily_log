@@ -68,12 +68,11 @@ class CommitRetroModel:
         """피그마 중앙 본문 영역용: 선택한 회고록의 상세 내용 및 임베드된 커밋 조회"""
         return self.retrospectives.find_one({"_id": ObjectId(retro_id)})
 
-    def create_postit(self, user_id, content, color="#FFDE59"):
+    def create_postit(self, user_id, content):
         """우측 메모 영역에서 사용자가 추가한 독립 포스트잇 저장 (Create)"""
         postit_data = {
             "userId": ObjectId(user_id), 
             "content": content,
-            "color": color,
             "createdAt": datetime.now(),
             "updatedAt": datetime.now()
         }
@@ -84,5 +83,50 @@ class CommitRetroModel:
         """피그마 우측 사이드바용: 사용자가 작성한 독립 메모 목록 최신순 조회 (Read)"""
         return list(self.postits.find({"userId": ObjectId(user_id)}).sort("createdAt", -1))
 
-    def close(self):
-        self.client.close()
+    def update_retrospective(self, retro_id, user_id, title=None, content=None, commits_snapshot=None):
+        """회고록 수정 (Update) - 본인 확인 포함"""
+        update_data = {}
+        if title is not None:
+            update_data["title"] = title
+        if content is not None:
+            update_data["content"] = content
+        if commits_snapshot is not None:
+            update_data["commits"] = commits_snapshot
+            
+        if not update_data:
+            return False
+
+        update_data["updatedAt"] = datetime.now()
+
+        result = self.retrospectives.update_one(
+            {"_id": ObjectId(retro_id), "userId": ObjectId(user_id)},
+            {"$set": update_data}
+        )
+        return result.modified_count > 0
+
+    def delete_retrospective(self, retro_id, user_id):
+        """회고록 삭제 (Delete) - 본인 확인 포함"""
+        result = self.retrospectives.delete_one({
+            "_id": ObjectId(retro_id),
+            "userId": ObjectId(user_id)
+        })
+        return result.deleted_count > 0
+
+    def update_postit(self, postit_id, user_id, content):
+        """포스트잇 내용 수정 (Update) - 본인 확인 포함"""
+        result = self.postits.update_one(
+            {"_id": ObjectId(postit_id), "userId": ObjectId(user_id)},
+            {"$set": {
+                "content": content,
+                "updatedAt": datetime.now()
+            }}
+        )
+        return result.modified_count > 0
+
+    def delete_postit(self, postit_id, user_id):
+        """포스트잇 삭제 (Delete) - 본인 확인 포함"""
+        result = self.postits.delete_one({
+            "_id": ObjectId(postit_id),
+            "userId": ObjectId(user_id)
+        })
+        return result.deleted_count > 0
