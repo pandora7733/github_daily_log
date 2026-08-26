@@ -50,8 +50,8 @@ async function getGitHubRepos() {
         return `
             <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
                 <div class="repo-item flex">
-                <span class="repo-names font-medium text-blue-800">
-                    <a href="${repos.url}"><span id="repo-name">${repos.full_name}</span></a>
+                <span class="repo-names w-60 font-medium text-blue-800">
+                    <a href="${repos.url}"><p class="truncate">${repos.full_name}</p></a>
                 </span>
                 <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
                     <span id="repo-label">${repos.private ? "Private" : "Public"}</span>
