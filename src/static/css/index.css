@@ -91,11 +91,6 @@ body {
   background: #f3f4f6;
 }
 
-.memo-card.is-editing {
-  outline: 2px solid #93c5fd;
-  outline-offset: 2px;
-}
-
 .commit-timeline__heading {
   margin: 0 0 1rem;
   padding-bottom: 0.5rem;

@@ -34,13 +34,14 @@
         }
 
         card.dataset.commitDate = date;
-        let dateLabel = card.querySelector(".memo-commit-date");
-        if (!dateLabel) {
-            dateLabel = document.createElement("span");
-            dateLabel.className = "memo-commit-date text-xs text-gray-500 block mb-2";
-            card.querySelector(".memo-title").after(dateLabel);
-        }
-        dateLabel.textContent = `Commit date: ${date}`;
+    }
+
+    function getCommitSnapshot(card) {
+        const commitDate = card.dataset.commitDate;
+        return (commitsByDate[commitDate] || []).map((commit) => ({
+            ...commit,
+            commitDate,
+        }));
     }
 
     function createNoteCard(note) {
@@ -116,13 +117,7 @@
             content,
         };
 
-        if (!isUpdate) {
-            const commitDate = card.dataset.commitDate || selectedCommitDate;
-            payload.commits_snapshot = (commitsByDate[commitDate] || []).map((commit) => ({
-                ...commit,
-                commitDate,
-            }));
-        }
+        payload.commits_snapshot = getCommitSnapshot(card);
 
         card.dataset.saving = "true";
         const request = (async () => {
@@ -182,6 +177,12 @@
         saveTimers.set(card, timer);
     }
 
+    function editNote(card) {
+        const textarea = card.querySelector(".memo-input");
+        card.classList.add("is-editing");
+        textarea?.focus();
+    }
+
     document.querySelectorAll(".commit-day-btn").forEach((button) => {
         button.addEventListener("click", () => {
             selectedCommitDate = button.dataset.date || null;
@@ -198,12 +199,48 @@
                 ? null
                 : activeMemoCard;
 
-            if (!actionButton || !isNoteCard(card) || actionButton.dataset.action !== "create") {
+            if (!actionButton || !isNoteCard(card)) {
                 return;
             }
 
             event.preventDefault();
             event.stopImmediatePropagation();
+
+            const action = actionButton.dataset.action;
+            if (action === "edit") {
+                closeContextMenu();
+                editNote(card);
+                return;
+            }
+
+            if (action === "delete") {
+                const retrospectiveId = card.dataset.retrospectiveId;
+                closeContextMenu();
+
+                if (!retrospectiveId) {
+                    card.remove();
+                    return;
+                }
+
+                try {
+                    const response = await fetch(
+                        `/api/retrospectives/${retrospectiveId}`,
+                        { method: "DELETE" }
+                    );
+                    if (!response.ok) {
+                        throw new Error(`노트 삭제 실패: ${response.status}`);
+                    }
+                    card.remove();
+                } catch (error) {
+                    console.error(error);
+                    alert("노트 삭제에 실패했습니다.");
+                }
+                return;
+            }
+
+            if (action !== "create") {
+                return;
+            }
 
             const textarea = card.querySelector(".memo-input");
             const hasContent = Boolean(textarea?.value.trim());
@@ -247,6 +284,41 @@
 
         resizeTextarea(textarea);
     });
+
+    contentArea.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape") {
+            return;
+        }
+
+        const textarea = event.target.closest(".memo-input");
+        const card = textarea?.closest(".memo-card");
+
+        if (!isNoteCard(card)) {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        const hasContent = Boolean(textarea.value.trim());
+        const isExistingNote = Boolean(card.dataset.retrospectiveId);
+        const commitDate = card.dataset.commitDate || selectedCommitDate;
+
+        if (hasContent && !isExistingNote && !commitDate) {
+            alert("먼저 왼쪽에서 커밋 날짜를 선택해 주세요.");
+            return;
+        }
+
+        if (hasContent && !isExistingNote) {
+            renderCommitDate(card, commitDate);
+        }
+
+        saveNote(card).then((saved) => {
+            if (saved) {
+                card.classList.remove("is-editing");
+            }
+        });
+    }, true);
 
     fetch("/api/retrospectives")
         .then((response) => {

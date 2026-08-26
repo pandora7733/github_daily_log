@@ -613,10 +613,19 @@ def update_retrospective(retro_id):
     if not retrospective or str(retrospective.get("userId")) != str(user_id):
         return jsonify({"error": "노트를 찾을 수 없습니다."}), 404
 
+    title = data.get("title") or retrospective.get("title") or "Note"
+    commits_snapshot = data.get("commits_snapshot")
+    if commits_snapshot is None:
+        commits_snapshot = retrospective.get("commits") or []
+    if not isinstance(commits_snapshot, list):
+        return jsonify({"error": "커밋 정보 형식이 올바르지 않습니다."}), 400
+
     model.update_retrospective(
         retro_id=retro_id,
         user_id=user_id,
+        title=title,
         content=content,
+        commits_snapshot=commits_snapshot,
     )
     updated_retrospective = model.get_retrospective_detail(retro_id)
 
@@ -624,6 +633,23 @@ def update_retrospective(retro_id):
         "success": True,
         "retrospective": serialize_retrospective(updated_retrospective),
     })
+
+
+@app.route("/api/retrospectives/<retro_id>", methods=["DELETE"])
+def delete_retrospective(retro_id):
+    """현재 로그인한 사용자의 Note를 삭제한다."""
+    user_id = get_session_user_id()
+    if not is_valid_user_id(user_id) or not ObjectId.is_valid(retro_id):
+        return jsonify({"error": "잘못된 요청입니다."}), 400
+
+    deleted = get_retro_model().delete_retrospective(
+        retro_id=retro_id,
+        user_id=user_id,
+    )
+    if not deleted:
+        return jsonify({"error": "노트를 찾을 수 없습니다."}), 404
+
+    return jsonify({"success": True})
 
 
 @app.route('/dashboard/profile', methods=['GET'])
