@@ -374,14 +374,8 @@ def dashboard():
     access_token = session.get("github_access_token")
     user = session.get("github_user")
 
-    if not user or not access_token:
-        return render_template(
-        'dashboard.html',
-        repos=[],
-        user=user,
-        commit_groups={"today": [], "week": [], "month": [], "year": []},
-        calendar=None
-    )
+    print("no user or access_token")
+    return redirect("/")
     print(user)
 
     query = """
