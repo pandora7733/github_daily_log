@@ -118,7 +118,6 @@ def github_repos():
     access_token = session.get("github_access_token")
 
     if not access_token:
-        print("token을 못찾음")
         return redirect("/")
 
     response = requests.get(
@@ -133,11 +132,27 @@ def github_repos():
         }
     )
 
-    print("Status:", response.status_code)
-    print("OAuth Scopes:", response.headers.get("X-OAuth-Scopes"))
-    print("Response:", response.json())
+    if response.status_code != 200:
+        return jsonify({
+            "error": "GitHub repository를 가져오지 못했습니다."
+        }), response.status_code
 
-    return jsonify(response.json())
+    data = response.json()
+
+    repos = []
+
+    for repo in data:
+        repos.append({
+            "id": repo["id"],
+            "name": repo["name"],
+            "full_name": repo["full_name"],
+            "private": repo["private"],
+            "url": repo["html_url"],
+            "description": repo["description"],
+            "language": repo["language"]
+        })
+
+    return jsonify(repos)
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
