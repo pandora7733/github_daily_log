@@ -7,9 +7,40 @@
 
     const saveTimers = new WeakMap();
     const saveRequests = new WeakMap();
+    const commitsData = document.getElementById("commits-by-date-data");
+    const commitsByDate = commitsData
+        ? JSON.parse(commitsData.textContent)
+        : {};
+    let selectedCommitDate = null;
+
+    function refreshNoteVisibility() {
+        document.querySelectorAll(".memo-card--note").forEach((card) => {
+            const isSavedNote = Boolean(card.dataset.retrospectiveId);
+            const matchesSelectedDate =
+                selectedCommitDate &&
+                card.dataset.commitDate === selectedCommitDate;
+
+            card.hidden = isSavedNote && !matchesSelectedDate;
+        });
+    }
 
     function isNoteCard(card) {
         return card && card.classList.contains("memo-card--note");
+    }
+
+    function renderCommitDate(card, date) {
+        if (!date) {
+            return;
+        }
+
+        card.dataset.commitDate = date;
+        let dateLabel = card.querySelector(".memo-commit-date");
+        if (!dateLabel) {
+            dateLabel = document.createElement("span");
+            dateLabel.className = "memo-commit-date text-xs text-gray-500 block mb-2";
+            card.querySelector(".memo-title").after(dateLabel);
+        }
+        dateLabel.textContent = `Commit date: ${date}`;
     }
 
     function createNoteCard(note) {
@@ -40,8 +71,10 @@
         menuButton.setAttribute("aria-label", "메모 메뉴");
         menuButton.setAttribute("aria-haspopup", "menu");
 
-        card.append(title, textarea, menuButton);
+        card.appendChild(title);
+        card.append(textarea, menuButton);
         card.dataset.retrospectiveId = note.id;
+        renderCommitDate(card, note.commit_date);
         resizeTextarea(textarea);
 
         if (typeof bindMemoCard === "function") {
@@ -78,6 +111,18 @@
         const url = isUpdate
             ? `/api/retrospectives/${retrospectiveId}`
             : "/api/retrospectives";
+        const payload = {
+            title: "Note",
+            content,
+        };
+
+        if (!isUpdate) {
+            const commitDate = card.dataset.commitDate || selectedCommitDate;
+            payload.commits_snapshot = (commitsByDate[commitDate] || []).map((commit) => ({
+                ...commit,
+                commitDate,
+            }));
+        }
 
         card.dataset.saving = "true";
         const request = (async () => {
@@ -87,10 +132,7 @@
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({
-                        title: "Note",
-                        content,
-                    }),
+                    body: JSON.stringify(payload),
                 });
 
                 if (!response.ok) {
@@ -100,7 +142,11 @@
                 const result = await response.json();
                 if (!isUpdate && result.retrospective?.id) {
                     card.dataset.retrospectiveId = result.retrospective.id;
+                    if (result.retrospective.commit_date) {
+                        renderCommitDate(card, result.retrospective.commit_date);
+                    }
                 }
+                refreshNoteVisibility();
                 return true;
             } catch (error) {
                 console.error(error);
@@ -136,6 +182,14 @@
         saveTimers.set(card, timer);
     }
 
+    document.querySelectorAll(".commit-day-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+            selectedCommitDate = button.dataset.date || null;
+            refreshNoteVisibility();
+        });
+    });
+    refreshNoteVisibility();
+
     const contextMenu = document.getElementById("memo-context-menu");
     if (contextMenu) {
         contextMenu.addEventListener("click", async (event) => {
@@ -153,6 +207,19 @@
 
             const textarea = card.querySelector(".memo-input");
             const hasContent = Boolean(textarea?.value.trim());
+            const isExistingNote = Boolean(card.dataset.retrospectiveId);
+            const commitDate = card.dataset.commitDate || selectedCommitDate;
+
+            if (hasContent && !isExistingNote && !commitDate) {
+                alert("먼저 왼쪽에서 커밋 날짜를 선택해 주세요.");
+                return;
+            }
+
+            if (hasContent && !isExistingNote) {
+                renderCommitDate(card, commitDate);
+            }
+            refreshNoteVisibility();
+
             const pendingTimer = saveTimers.get(card);
             if (pendingTimer) {
                 clearTimeout(pendingTimer);
@@ -179,17 +246,7 @@
         }
 
         resizeTextarea(textarea);
-        scheduleSave(card);
     });
-
-    contentArea.addEventListener("blur", (event) => {
-        const textarea = event.target.closest(".memo-input");
-        const card = textarea?.closest(".memo-card");
-
-        if (isNoteCard(card) && textarea.value.trim()) {
-            scheduleSave(card, 0);
-        }
-    }, true);
 
     fetch("/api/retrospectives")
         .then((response) => {
@@ -199,9 +256,17 @@
             return response.json();
         })
         .then((retrospectives) => {
+            const renderedIds = new Set(
+                Array.from(contentArea.querySelectorAll("[data-retrospective-id]"))
+                    .map((card) => card.dataset.retrospectiveId)
+            );
+
             retrospectives.forEach((retrospective) => {
-                contentArea.appendChild(createNoteCard(retrospective));
+                if (!renderedIds.has(retrospective.id)) {
+                    contentArea.appendChild(createNoteCard(retrospective));
+                }
             });
+            refreshNoteVisibility();
         })
         .catch((error) => {
             console.error(error);

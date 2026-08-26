@@ -56,10 +56,21 @@ def get_session_user_id():
 
 def serialize_retrospective(retrospective):
     """MongoDB 회고록을 프론트엔드에서 사용할 JSON 형태로 변환한다."""
+    commits = retrospective.get("commits") or []
+    commit_date = None
+    if commits and isinstance(commits[0], dict):
+        raw_date = commits[0].get("commitDate") or commits[0].get("date")
+        if isinstance(raw_date, datetime):
+            commit_date = raw_date.date().isoformat()
+        elif raw_date:
+            commit_date = str(raw_date)[:10]
+
     return {
         "id": str(retrospective["_id"]),
         "title": retrospective.get("title", "Note"),
         "content": retrospective.get("content", ""),
+        "commits": commits,
+        "commit_date": commit_date,
         "date": retrospective.get("date").isoformat()
         if retrospective.get("date")
         else None,
@@ -511,6 +522,13 @@ def dashboard():
     all_commits = collect_commits_from_repos(access_token, repos)
     commit_groups = group_commits_by_period(all_commits)
     commits_by_date = build_commits_by_date(all_commits)
+    retrospectives = []
+    user_id = get_session_user_id()
+    if is_valid_user_id(user_id):
+        retrospectives = [
+            serialize_retrospective(retro)
+            for retro in get_retro_model().get_user_retrospectives(user_id)
+        ]
 
     return render_template(
         'dashboard.html',
@@ -519,6 +537,7 @@ def dashboard():
         commit_groups=commit_groups,
         commits_by_date=commits_by_date,
         calendar=calendar,
+        retrospectives=retrospectives,
     )
 
 
@@ -561,6 +580,20 @@ def create_retrospective():
         "success": True,
         "retrospective": serialize_retrospective(retrospective),
     }), 201
+
+
+@app.route("/api/retrospectives/<retro_id>", methods=["GET"])
+def get_retrospective_detail(retro_id):
+    """현재 로그인한 사용자의 Note 상세 내용을 반환한다."""
+    user_id = get_session_user_id()
+    if not is_valid_user_id(user_id) or not ObjectId.is_valid(retro_id):
+        return jsonify({"error": "잘못된 요청입니다."}), 400
+
+    retrospective = get_retro_model().get_retrospective_detail(retro_id)
+    if not retrospective or str(retrospective.get("userId")) != str(user_id):
+        return jsonify({"error": "노트를 찾을 수 없습니다."}), 404
+
+    return jsonify(serialize_retrospective(retrospective))
 
 
 @app.route("/api/retrospectives/<retro_id>", methods=["PUT"])
