@@ -289,6 +289,33 @@ def github_repos():
 
     return jsonify(repos)
 
+@app.route("/api/user")
+def github_user():
+
+    access_token = session.get("github_access_token")
+
+    if not access_token:
+        return redirect("/")
+
+    response = requests.get(
+        "https://api.github.com/user",
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "Accept": "application/vnd.github+json"
+        },
+        params={
+            "visibility": "all",
+            "per_page": 100
+        }
+    )
+
+    if response.status_code != 200:
+        return jsonify({
+            "error": "GitHub user를 가져오지 못했습니다."
+        }), response.status_code
+
+    return jsonify(response.json())
+
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
     
