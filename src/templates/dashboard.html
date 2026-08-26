@@ -111,8 +111,8 @@
                   {% for day in days %}
                     <button
                       type="button"
-                      class="flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100"
-                      data-commit-url="{{ day.url }}"
+                      class="commit-day-btn flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100"
+                      data-date="{{ day.date }}"
                     >
                       <span class="font-semibold text-lg">{{ day.date_display }}</span>
                       <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">
@@ -190,6 +190,18 @@
               </div>
 
           </div>
+
+          <div id="commit-detail" class="commit-timeline hidden w-full max-w-3xl mt-8 px-2">
+            <h3 id="commit-detail-title" class="commit-timeline__heading"></h3>
+            <ol id="commit-detail-list" class="commit-timeline__list"></ol>
+            <button
+              id="commit-detail-more"
+              type="button"
+              class="commit-timeline__more hidden"
+            >
+              더보기
+            </button>
+          </div>
           
         </div>
 
@@ -237,37 +249,35 @@
 
 
         <div
-          id="memo"
-          class="relative w-340 min-h-65 bg-gray-100 p-4
+          class="memo-card memo-card--note relative w-340 min-h-65 bg-gray-100 p-4
                 shadow-[4px_6px_12px_rgba(0,0,0,0.15)]
                 overflow-hidden mb-8"
         >
-          <span class="text-xl block font-bold text-gray-800 mb-3">
+          <span class="memo-title text-xl block font-bold text-gray-800 mb-3">
             Note
           </span>
 
           <textarea
-            id="memoInput"
-            name="memo"
-            rows="1"
-            placeholder="메모를 입력하세요"
-            class="w-full bg-transparent
+            class="memo-input w-full bg-transparent
                   outline-none resize-none overflow-hidden
                   text-gray-700
                   placeholder-gray-500"
+            name="memo"
+            rows="1"
+            placeholder="메모를 입력하세요"
           ></textarea>
 
-          <!-- 접힌 부분 버튼 -->
           <button
             type="button"
-            class="absolute bottom-0 right-0
+            class="memo-menu-btn absolute bottom-0 right-0
                   w-10 h-10
                   bg-gray-300
                   hover:bg-gray-400
                   transition-colors
                   [clip-path:polygon(100%_0,0_100%,100%_100%)]
                   cursor-pointer"
-            aria-label="메모 기능"
+            aria-label="메모 메뉴"
+            aria-haspopup="menu"
           ></button>
         </div>
       </div>
@@ -276,111 +286,105 @@
           <span class="text-xl font-semibold shrink-0">post it</span>
           <div class="flex-1 h-1 bg-gray-300 ml-3 mt-1"></div>
         </div>
-        <div class="p-3">
+        <div id="memo-list-postit" class="p-3">
           <div
-            id="memo"
-            class="relative w-92 min-h-60 bg-yellow-200 p-4
+            class="memo-card memo-card--post-it relative w-92 min-h-60 bg-yellow-200 p-4
                   shadow-[4px_6px_12px_rgba(0,0,0,0.15)]
                   overflow-hidden mb-8"
           >
-            <span class="block font-semibold text-gray-700 mb-3">
+            <span class="memo-title block font-semibold text-gray-700 mb-3">
               memo
             </span>
 
             <textarea
-              id="memoInput"
-              name="memo"
-              rows="1"
-              placeholder="메모를 입력하세요"
-              class="w-full bg-transparent
+              class="memo-input w-full bg-transparent
                     outline-none resize-none overflow-hidden
                     text-gray-700
                     placeholder-gray-500"
+              name="memo"
+              rows="1"
+              placeholder="메모를 입력하세요"
             ></textarea>
 
-            <!-- 접힌 부분 버튼 -->
             <button
               type="button"
-              class="absolute bottom-0 right-0
+              class="memo-menu-btn absolute bottom-0 right-0
                     w-10 h-10
                     bg-yellow-300
                     hover:bg-yellow-400
                     transition-colors
                     [clip-path:polygon(100%_0,0_100%,100%_100%)]
                     cursor-pointer"
-              aria-label="메모 기능"
+              aria-label="메모 메뉴"
+              aria-haspopup="menu"
             ></button>
           </div>
 
 
           <div
-            id="memo"
-            class="relative w-92 min-h-60 bg-yellow-200 p-4
+            class="memo-card memo-card--post-it relative w-92 min-h-60 bg-yellow-200 p-4
                   shadow-[4px_6px_12px_rgba(0,0,0,0.15)]
                   overflow-hidden mb-8"
           >
-            <span class="block font-semibold text-gray-700 mb-3">
+            <span class="memo-title block font-semibold text-gray-700 mb-3">
               memo
             </span>
 
             <textarea
-              id="memoInput"
-              name="memo"
-              rows="1"
-              placeholder="메모를 입력하세요"
-              class="w-full bg-transparent
+              class="memo-input w-full bg-transparent
                     outline-none resize-none overflow-hidden
                     text-gray-700
                     placeholder-gray-500"
+              name="memo"
+              rows="1"
+              placeholder="메모를 입력하세요"
             ></textarea>
 
-            <!-- 접힌 부분 버튼 -->
             <button
               type="button"
-              class="absolute bottom-0 right-0
+              class="memo-menu-btn absolute bottom-0 right-0
                     w-10 h-10
                     bg-yellow-300
                     hover:bg-yellow-400
                     transition-colors
                     [clip-path:polygon(100%_0,0_100%,100%_100%)]
                     cursor-pointer"
-              aria-label="메모 기능"
+              aria-label="메모 메뉴"
+              aria-haspopup="menu"
             ></button>
           </div>
 
 
           <div
-            id="memo"
-            class="relative w-92 min-h-60 bg-yellow-200 p-4
+            class="memo-card memo-card--post-it relative w-92 min-h-60 bg-yellow-200 p-4
                   shadow-[4px_6px_12px_rgba(0,0,0,0.15)]
                   overflow-hidden mb-8"
           >
-            <span class="block font-semibold text-gray-700 mb-3">
+            <span class="memo-title block font-semibold text-gray-700 mb-3">
               memo
             </span>
 
             <textarea
-              id="memoInput"
-              name="memo"
-              rows="1"
-              placeholder="메모를 입력하세요"
-              class="w-full bg-transparent
+              class="memo-input w-full bg-transparent
                     outline-none resize-none overflow-hidden
                     text-gray-700
                     placeholder-gray-500"
+              name="memo"
+              rows="1"
+              placeholder="메모를 입력하세요"
             ></textarea>
 
-            <!-- 접힌 부분 버튼 -->
             <button
               type="button"
-              class="absolute bottom-0 right-0
+              class="memo-menu-btn absolute bottom-0 right-0
                     w-10 h-10
                     bg-yellow-300
                     hover:bg-yellow-400
                     transition-colors
                     [clip-path:polygon(100%_0,0_100%,100%_100%)]
                     cursor-pointer"
-              aria-label="메모 기능"
+              aria-label="메모 메뉴"
+              aria-haspopup="menu"
             ></button>
           </div>
         </div>
@@ -388,8 +392,21 @@
     </div>
   </div>
 
+  <div
+    id="memo-context-menu"
+    class="memo-context-menu hidden"
+    role="menu"
+    aria-hidden="true"
+  >
+    <button type="button" class="memo-context-menu__item" data-action="edit" role="menuitem">수정</button>
+    <button type="button" class="memo-context-menu__item" data-action="delete" role="menuitem">삭제</button>
+    <button type="button" class="memo-context-menu__item" data-action="create" role="menuitem">생성</button>
+  </div>
+
   <script id="calendar-weeks-data" type="application/json">{{ calendar.weeks | tojson }}</script>
+  <script id="commits-by-date-data" type="application/json">{{ commits_by_date | tojson }}</script>
   <script src="{{ url_for('static', filename='js/contribution_toggle.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/commit_detail.js') }}"></script>
   <script src="{{ url_for('static', filename='js/3D_jandi.js') }}" type="module"></script>
   <script src="{{ url_for('static', filename='js/post_it.js') }}"></script>
 </body>

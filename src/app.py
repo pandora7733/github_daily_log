@@ -102,6 +102,7 @@ def group_commits_by_period(all_commits):
             latest = commits[0]
 
             day_list.append({
+                "date": latest["parsed_date"].isoformat(),
                 "date_display": latest["parsed_date"].strftime("%Y.%m.%d"),
                 "repo_name": latest["repo_name"],
                 "title": latest["title"],
@@ -113,6 +114,26 @@ def group_commits_by_period(all_commits):
         result[period] = day_list
 
     return result
+
+
+def build_commits_by_date(all_commits):
+    commits_by_date = defaultdict(list)
+
+    for commit in all_commits:
+        date_str = commit.get("date")
+        if not date_str:
+            continue
+
+        date_key = to_local_date(date_str).isoformat()
+        commits_by_date[date_key].append(commit)
+
+    for date_key in commits_by_date:
+        commits_by_date[date_key].sort(
+            key=lambda item: item["date"],
+            reverse=True,
+        )
+
+    return dict(commits_by_date)
 
 
 def collect_commits_from_repos(access_token, repos):
@@ -360,12 +381,14 @@ def dashboard():
 
     all_commits = collect_commits_from_repos(access_token, repos)
     commit_groups = group_commits_by_period(all_commits)
+    commits_by_date = build_commits_by_date(all_commits)
 
     return render_template(
         'dashboard.html',
         repos=repos,
         user=user,
         commit_groups=commit_groups,
+        commits_by_date=commits_by_date,
         calendar=calendar,
     )
 
