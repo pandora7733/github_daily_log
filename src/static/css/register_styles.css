@@ -1,0 +1,93 @@
+@import url('https://googleapis.com');
+a {
+    text-decoration: none;
+}
+body {
+    background-color: #EEEDFC;
+    padding-top: 100px;
+}
+.container { 
+    background-color: white;
+    text-align: center;
+    width: 350px;
+    height: 700px;
+    margin: auto;
+    border-radius: 30px;
+    padding: 10px;
+}
+.container h3 {
+    font-family: 'Island Moments', cursive;
+    font-size: 26px;
+}
+
+.upper {
+    color: blue;
+    font-size: 20px;
+    padding-top: 10px;
+}
+.container input[type="email"],
+.container input[type="text"],
+.container input[type="password"] {
+    width: 300px;
+    height: 40px;
+    margin: 8px;
+    border-radius: 8px;
+    border: 2.5px solid white;
+    outline: none;
+    background-color: #f5f7ff;
+    padding-left: 20px;
+}
+
+.container input[type="email"]:focus,
+.container input[type="text"]:focus,
+.container input[type="password"]:focus {
+    border-color: #1D4ED8;
+}
+#signUp {
+    width: 326px;
+    height: 45px;
+    background-color: #1D4ED8;
+    color: white;
+    border-radius: 9px;
+    border: 1px solid #f5f7ff;
+    margin-top: 10px;
+    font-size: 18px;
+    margin-bottom: 25px;
+    cursor: pointer;
+    padding: 0;
+    box-sizing: border-box;
+}
+#Pass {
+    margin-left: 150px;
+    font-size: 13px;
+    font-weight: 700;
+
+}
+#reg {
+    color: rgb(105, 105, 105);
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 40px;
+}
+#or {
+    margin-top: 60px;
+    color: #1D4ED8;
+}
+.github {
+    width: 300px;
+    margin: auto;
+    border-radius: 5px;
+    text-align: center;
+    background-color: #3B4654;
+    box-sizing: border-box;
+    display: inline-flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px;
+}
+#git {
+    color: #f5f7ff;
+}
+#cat {
+    height: 30px; 
+}

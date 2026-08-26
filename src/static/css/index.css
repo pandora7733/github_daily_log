@@ -3,3 +3,64 @@
 body {
     margin: 0;
 }
+
+
+#github_daily_log {
+  font-family: "Dancing Script", cursive;
+  font-optical-sizing: 5rem;
+  font-weight: 10rem;
+  font-style: bold;
+}
+
+/* 스크롤 바 삭제 */
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* toggle switch */
+#header-togglebutton {
+  display: flex;
+  align-items: center; /* 세로 가운데 정렬 */
+  justify-content: center; /* 가로 가운데 정렬 (선택사항) */
+  
+}
+
+.toggleSwitch {
+  width: 5.5rem;
+  height: 2.0rem;
+  display: block;
+  position: relative;
+  border-radius: 5px;
+  background-color: #eaeaea;
+  box-shadow: 0 0 16px 3px rgba(0 0 0 / 15%);
+  cursor: pointer;
+}
+
+.toggleSwitch .toggleButton {
+  width: 40px;
+  height: 28px;
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  transform: translateY(-50%);
+  border-radius: 10%;
+  background: #fff;
+}
+
+#toggle:checked ~ .toggleSwitch {
+  background: #eaeaea;
+}
+
+#toggle:checked ~ .toggleSwitch .toggleButton {
+  left: calc(100% - 44px);
+  background: #fff;
+}
+
+.toggleSwitch, .toggleButton {
+  transition: all 0.2s ease-in;
+}

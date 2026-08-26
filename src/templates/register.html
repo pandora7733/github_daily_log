@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Github daily log register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/register_styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h3>My Github Daily Log</h3>
+        <div class="upper">
+            <h2>Register</h2>
+            <label for="user-information">
+                <input type="email" id="user-email" placeholder="Email" required>
+                <br>
+                <input type="password" id="user-password" placeholder="Password" required>
+                </div>
+                <input type="password" id="user-password-confirm" placeholder="Confirm Password" required>
+                <button type="submit" id="signUp">Sign up</button>
+                <p id="confirm-result"></p>
+                <p id="pwd-result"></p>
+            </label>
+            <br>
+            <a href="login" id="reg">Already have an account</a>
+            <br>
+            <h5 id="or">Or continue with</h5>
+            <div class="github">
+                <img src="https://cdn-icons-png.flaticon.com/256/25/25231.png" alt="깃허브 고양이" id="cat">
+                <a href="/auth/github/register" id="git">sign in with Github</a>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="{{ url_for('static', filename='js/email_comfirm.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/pw_comfirm.js') }}"></script>
+</body>
+</html>
