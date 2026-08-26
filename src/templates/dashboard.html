@@ -364,6 +364,41 @@
               aria-haspopup="menu"
             ></button>
           </div>
+          {% for postit in postits %}
+            <div
+              class="memo-card memo-card--post-it relative w-92 min-h-60 bg-yellow-200 p-4
+                    shadow-[4px_6px_12px_rgba(0,0,0,0.15)]
+                    overflow-hidden mb-8"
+              data-postit-id="{{ postit.id }}"
+            >
+              <span class="memo-title block font-semibold text-gray-700 mb-3">
+                memo
+              </span>
+
+              <textarea
+                class="memo-input w-full bg-transparent
+                      outline-none resize-none overflow-hidden
+                      text-gray-700
+                      placeholder-gray-500"
+                name="memo"
+                rows="1"
+                placeholder="메모를 입력하세요"
+              >{{ postit.content }}</textarea>
+
+              <button
+                type="button"
+                class="memo-menu-btn absolute bottom-0 right-0
+                      w-10 h-10
+                      bg-yellow-300
+                      hover:bg-yellow-400
+                      transition-colors
+                      [clip-path:polygon(100%_0,0_100%,100%_100%)]
+                      cursor-pointer"
+                aria-label="메모 메뉴"
+                aria-haspopup="menu"
+              ></button>
+            </div>
+          {% endfor %}
         </div>
       </div>
     </div>
@@ -386,6 +421,7 @@
   <script src="{{ url_for('static', filename='js/commit_detail.js') }}"></script>
   <script src="{{ url_for('static', filename='js/3D_jandi.js') }}" type="module"></script>
   <script src="{{ url_for('static', filename='js/post_it.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/post_it_storage.js') }}"></script>
   <script src="{{ url_for('static', filename='js/note.js') }}"></script>
 </body>
 </html>

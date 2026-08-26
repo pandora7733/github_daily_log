@@ -81,6 +81,16 @@ def is_valid_user_id(user_id):
     return bool(user_id and ObjectId.is_valid(str(user_id)))
 
 
+def serialize_postit(postit):
+    """MongoDB 포스트잇을 프론트엔드에서 사용할 JSON 형태로 변환한다."""
+    created_at = postit.get("createdAt")
+    return {
+        "id": str(postit["_id"]),
+        "content": postit.get("content", ""),
+        "created_at": created_at.isoformat() if created_at else None,
+    }
+
+
 def to_local_date(date_str):
     commit_dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
     return commit_dt.astimezone(LOCAL_TZ).date()
@@ -538,6 +548,10 @@ def dashboard():
         commits_by_date=commits_by_date,
         calendar=calendar,
         retrospectives=retrospectives,
+        postits=[
+            serialize_postit(postit)
+            for postit in get_retro_model().get_user_postits(user_id)
+        ] if is_valid_user_id(user_id) else [],
     )
 
 
@@ -550,6 +564,43 @@ def get_retrospectives():
 
     retrospectives = get_retro_model().get_user_retrospectives(user_id)
     return jsonify([serialize_retrospective(retro) for retro in retrospectives])
+
+
+@app.route("/api/postits", methods=["GET"])
+def get_postits():
+    """현재 로그인한 사용자의 post-it 목록을 최신순으로 반환한다."""
+    user_id = get_session_user_id()
+    if not is_valid_user_id(user_id):
+        return jsonify({"error": "로그인이 필요합니다."}), 401
+
+    postits = get_retro_model().get_user_postits(user_id)
+    return jsonify([serialize_postit(postit) for postit in postits])
+
+
+@app.route("/api/postits", methods=["POST"])
+def create_postit():
+    """우측 사이드바의 post-it을 현재 로그인한 사용자의 메모로 저장한다."""
+    user_id = get_session_user_id()
+    if not is_valid_user_id(user_id):
+        return jsonify({"error": "로그인이 필요합니다."}), 401
+
+    data = request.get_json(silent=True) or {}
+    content = data.get("content")
+    if not isinstance(content, str) or not content.strip():
+        return jsonify({"error": "post-it 내용을 입력해 주세요."}), 400
+
+    postit_id = get_retro_model().create_postit(
+        user_id=user_id,
+        content=content,
+    )
+
+    return jsonify({
+        "success": True,
+        "postit": {
+            "id": str(postit_id),
+            "content": content,
+        },
+    }), 201
 
 
 @app.route("/api/retrospectives", methods=["POST"])
