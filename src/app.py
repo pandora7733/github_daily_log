@@ -90,7 +90,6 @@ def serialize_postit(postit):
         "created_at": created_at.isoformat() if created_at else None,
     }
 
-
 def to_local_date(date_str):
     commit_dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
     return commit_dt.astimezone(LOCAL_TZ).date()
@@ -368,7 +367,7 @@ def logout():
     session.clear()
 
     print("logout")
-    return redirect("/")
+    return redirect("/login")
 
 @app.route("/api/repos")
 def github_repos():

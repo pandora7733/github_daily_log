@@ -1,50 +1,57 @@
 const contextMenu = document.getElementById("memo-context-menu");
+const noteList = document.getElementById("memo-list-note");
 const postItList = document.getElementById("memo-list-postit");
-const contentArea = document.getElementById("content");
 
 let activeMemoCard = null;
-
-const MEMO_TEMPLATES = {
-    note: `
-        <span class="memo-title text-xl block font-bold text-gray-800 mb-3">Note</span>
-        <textarea
-          class="memo-input w-full bg-transparent outline-none resize-none overflow-hidden text-gray-700 placeholder-gray-500"
-          name="memo"
-          rows="1"
-          placeholder="메모를 입력하세요"
-        ></textarea>
-        <button
-          type="button"
-          class="memo-menu-btn absolute bottom-0 right-0 w-10 h-10 bg-gray-300 hover:bg-gray-400 transition-colors [clip-path:polygon(100%_0,0_100%,100%_100%)] cursor-pointer"
-          aria-label="메모 메뉴"
-          aria-haspopup="menu"
-        ></button>
-    `,
-    "post-it": `
-        <span class="memo-title block font-semibold text-gray-700 mb-3">memo</span>
-        <textarea
-          class="memo-input w-full bg-transparent outline-none resize-none overflow-hidden text-gray-700 placeholder-gray-500"
-          name="memo"
-          rows="1"
-          placeholder="메모를 입력하세요"
-        ></textarea>
-        <button
-          type="button"
-          class="memo-menu-btn absolute bottom-0 right-0 w-10 h-10 bg-yellow-300 hover:bg-yellow-400 transition-colors [clip-path:polygon(100%_0,0_100%,100%_100%)] cursor-pointer"
-          aria-label="메모 메뉴"
-          aria-haspopup="menu"
-        ></button>
-    `,
-};
 
 const MEMO_CARD_CLASSES = {
     note: "memo-card memo-card--note relative w-340 min-h-65 bg-gray-100 p-4 shadow-[4px_6px_12px_rgba(0,0,0,0.15)] overflow-hidden mb-8",
     "post-it": "memo-card memo-card--post-it relative w-92 min-h-60 bg-yellow-200 p-4 shadow-[4px_6px_12px_rgba(0,0,0,0.15)] overflow-hidden mb-8",
 };
 
+const MENU_BUTTON_CLASSES = {
+    note: "memo-menu-btn absolute bottom-0 right-0 w-10 h-10 bg-gray-300 hover:bg-gray-400 transition-colors [clip-path:polygon(100%_0,0_100%,100%_100%)] cursor-pointer",
+    "post-it": "memo-menu-btn absolute bottom-0 right-0 w-10 h-10 bg-yellow-300 hover:bg-yellow-400 transition-colors [clip-path:polygon(100%_0,0_100%,100%_100%)] cursor-pointer",
+};
+
+function getMemoVariant(card) {
+    return card.classList.contains("memo-card--note") ? "note" : "post-it";
+}
+
+function getMemoContainer(variant) {
+    return variant === "note" ? noteList : postItList;
+}
+
+function getCardValues(card) {
+    const titleEl = card.querySelector(".memo-title");
+    const textarea = card.querySelector(".memo-input");
+
+    return {
+        title: titleEl ? titleEl.textContent.trim() || "Note" : "Note",
+        content: textarea ? textarea.value : "",
+    };
+}
+
 function resizeTextarea(textarea) {
     textarea.style.height = "auto";
     textarea.style.height = `${textarea.scrollHeight}px`;
+}
+
+function setReadonly(card, readonly) {
+    const title = card.querySelector(".memo-title");
+    const textarea = card.querySelector(".memo-input");
+
+    if (title) {
+        title.contentEditable = readonly ? "false" : "true";
+    }
+
+    if (textarea) {
+        if (readonly) {
+            textarea.setAttribute("readonly", "readonly");
+        } else {
+            textarea.removeAttribute("readonly");
+        }
+    }
 }
 
 function bindTextarea(textarea) {
@@ -52,6 +59,64 @@ function bindTextarea(textarea) {
         resizeTextarea(textarea);
     });
     resizeTextarea(textarea);
+}
+
+async function requestJson(url, options = {}) {
+    const response = await fetch(url, {
+        headers: {
+            "Content-Type": "application/json",
+            ...(options.headers || {}),
+        },
+        ...options,
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data.error || "요청에 실패했습니다.");
+    }
+
+    return data;
+}
+
+function buildMemoCard(variant, data = {}, draft = false) {
+    const card = document.createElement("div");
+    card.className = MEMO_CARD_CLASSES[variant];
+
+    if (draft) {
+        card.dataset.draft = "true";
+    } else if (data.id) {
+        card.dataset.id = data.id;
+    }
+
+    const titleText = variant === "note" ? (data.title || "Note") : "memo";
+    const titleClass = variant === "note"
+        ? "memo-title text-xl block font-bold text-gray-800 mb-3"
+        : "memo-title block font-semibold text-gray-700 mb-3";
+
+    card.innerHTML = `
+        <span class="${titleClass}"></span>
+        <textarea
+          class="memo-input w-full bg-transparent outline-none resize-none overflow-hidden text-gray-700 placeholder-gray-500"
+          name="memo"
+          rows="1"
+          placeholder="메모를 입력하세요"
+          readonly
+        ></textarea>
+        <button
+          type="button"
+          class="${MENU_BUTTON_CLASSES[variant]}"
+          aria-label="메모 메뉴"
+          aria-haspopup="menu"
+        ></button>
+    `;
+
+    card.querySelector(".memo-title").textContent = titleText;
+    const textarea = card.querySelector(".memo-input");
+    textarea.value = data.content || "";
+
+    bindMemoCard(card);
+    return card;
 }
 
 function bindMemoCard(card) {
@@ -70,20 +135,137 @@ function bindMemoCard(card) {
     }
 }
 
-function getMemoVariant(card) {
-    return card.classList.contains("memo-card--note") ? "note" : "post-it";
+function ensureDraftCard(container, variant) {
+    const hasCard = container.querySelector(".memo-card");
+    if (!hasCard) {
+        container.appendChild(buildMemoCard(variant, {}, true));
+    }
 }
 
-function getMemoContainer(variant) {
-    return variant === "note" ? contentArea : postItList;
+async function saveMemo(card) {
+    const variant = getMemoVariant(card);
+    const { title, content } = getCardValues(card);
+    const memoId = card.dataset.id;
+
+    if (variant === "note") {
+        if (memoId) {
+            await requestJson(`/api/notes/${memoId}`, {
+                method: "PUT",
+                body: JSON.stringify({ title, content }),
+            });
+            return;
+        }
+
+        const created = await requestJson("/api/notes", {
+            method: "POST",
+            body: JSON.stringify({ title, content }),
+        });
+
+        card.dataset.id = created.id;
+        delete card.dataset.draft;
+        return;
+    }
+
+    if (memoId) {
+        await requestJson(`/api/postits/${memoId}`, {
+            method: "PUT",
+            body: JSON.stringify({ content }),
+        });
+        return;
+    }
+
+    const created = await requestJson("/api/postits", {
+        method: "POST",
+        body: JSON.stringify({ content }),
+    });
+
+    card.dataset.id = created.id;
+    delete card.dataset.draft;
 }
 
-function createMemoCard(variant) {
-    const card = document.createElement("div");
-    card.className = MEMO_CARD_CLASSES[variant];
-    card.innerHTML = MEMO_TEMPLATES[variant];
-    bindMemoCard(card);
-    return card;
+function finishEditing(card) {
+    card.classList.remove("is-editing");
+    setReadonly(card, true);
+}
+
+async function editMemo(card) {
+    const title = card.querySelector(".memo-title");
+    const textarea = card.querySelector(".memo-input");
+
+    card.classList.add("is-editing");
+    setReadonly(card, false);
+
+    const handleSave = async () => {
+        title?.removeEventListener("blur", handleSave);
+        textarea?.removeEventListener("blur", handleSave);
+
+        try {
+            await saveMemo(card);
+        } catch (error) {
+            alert(error.message);
+            return;
+        }
+
+        finishEditing(card);
+    };
+
+    if (title && getMemoVariant(card) === "note") {
+        title.focus();
+        title.addEventListener("blur", handleSave);
+    } else if (textarea) {
+        textarea.focus();
+    }
+
+    textarea?.addEventListener("blur", handleSave);
+}
+
+async function deleteMemo(card) {
+    const variant = getMemoVariant(card);
+    const container = getMemoContainer(variant);
+    const memoId = card.dataset.id;
+
+    if (memoId) {
+        try {
+            const endpoint = variant === "note"
+                ? `/api/notes/${memoId}`
+                : `/api/postits/${memoId}`;
+
+            await requestJson(endpoint, { method: "DELETE" });
+        } catch (error) {
+            alert(error.message);
+            return;
+        }
+    }
+
+    card.remove();
+    ensureDraftCard(container, variant);
+}
+
+async function createMemo(sourceCard) {
+    const variant = getMemoVariant(sourceCard);
+    const container = getMemoContainer(variant);
+
+    try {
+        const endpoint = variant === "note" ? "/api/notes" : "/api/postits";
+        const payload = variant === "note"
+            ? { title: "Note", content: "" }
+            : { content: "" };
+
+        const created = await requestJson(endpoint, {
+            method: "POST",
+            body: JSON.stringify(payload),
+        });
+
+        const newCard = buildMemoCard(variant, created);
+        container.appendChild(newCard);
+
+        const textarea = newCard.querySelector(".memo-input");
+        if (textarea) {
+            await editMemo(newCard);
+        }
+    } catch (error) {
+        alert(error.message);
+    }
 }
 
 function openContextMenu(card, button) {
@@ -117,40 +299,9 @@ function closeContextMenu() {
     activeMemoCard = null;
 }
 
-function editMemo(card) {
-    const textarea = card.querySelector(".memo-input");
-    const title = card.querySelector(".memo-title");
-
-    card.classList.add("is-editing");
-
-    if (title) {
-        title.contentEditable = "true";
-        title.focus();
-    } else if (textarea) {
-        textarea.focus();
-    }
-}
-
-function deleteMemo(card) {
-    card.remove();
-}
-
-function createMemo(sourceCard) {
-    const variant = getMemoVariant(sourceCard);
-    const container = getMemoContainer(variant);
-    const newCard = createMemoCard(variant);
-
-    container.appendChild(newCard);
-
-    const textarea = newCard.querySelector(".memo-input");
-    if (textarea) {
-        textarea.focus();
-    }
-}
-
 document.querySelectorAll(".memo-card").forEach(bindMemoCard);
 
-contextMenu.addEventListener("click", (event) => {
+contextMenu.addEventListener("click", async (event) => {
     const actionButton = event.target.closest("[data-action]");
     if (!actionButton || !activeMemoCard) {
         return;
@@ -162,17 +313,17 @@ contextMenu.addEventListener("click", (event) => {
     closeContextMenu();
 
     if (action === "edit") {
-        editMemo(card);
+        await editMemo(card);
         return;
     }
 
-    if (action === "delete") { 
-        deleteMemo(card);
+    if (action === "delete") {
+        await deleteMemo(card);
         return;
     }
 
     if (action === "create") {
-        createMemo(card);
+        await createMemo(card);
     }
 });
 

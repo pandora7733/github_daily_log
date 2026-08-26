@@ -53,7 +53,7 @@ class CommitRetroModel:
         """중앙 note 2026 영역에서 사용자가 작성한 회고록 저장 (Create)"""
         if commits_snapshot is None:
             commits_snapshot = []
-            
+
         retro_data = {
             "userId": ObjectId(user_id),
             "date": datetime.now(),
@@ -108,7 +108,7 @@ class CommitRetroModel:
             {"_id": ObjectId(retro_id), "userId": ObjectId(user_id)},
             {"$set": update_data}
         )
-        return result.modified_count > 0
+        return result.matched_count > 0
 
     def delete_retrospective(self, retro_id, user_id):
         """회고록 삭제 (Delete) - 본인 확인 포함"""
@@ -127,7 +127,7 @@ class CommitRetroModel:
                 "updatedAt": datetime.now()
             }}
         )
-        return result.modified_count > 0
+        return result.matched_count > 0
 
     def delete_postit(self, postit_id, user_id):
         """포스트잇 삭제 (Delete) - 본인 확인 포함"""
