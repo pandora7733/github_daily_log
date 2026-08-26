@@ -337,11 +337,10 @@ def github_callback():
     user = db.users.find_one({"github_id": github_id})
     
     if user:
+
         session["user_id"] = str(user["_id"])
         session["username"] = user["username"]
         session["email"] = user["email"]
-        
-
         session["github_access_token"] = access_token
         return redirect("/dashboard")
         
@@ -363,12 +362,10 @@ def github_callback():
         
         result = db.users.insert_one(new_user)
         
-        session["user_id"] = str(user["_id"])
-        session["username"] = user.get("username")
-        session["email"] = user.get("email")
-        
-        if user.get("provider") == "github":
-            session["github_access_token"] = user.get("github_access_token")
+        session["user_id"] = str(result.inserted_id)
+        session["username"] = new_user["username"]
+        session["email"] = new_user["email"]
+        session["github_access_token"] = access_token
         
         return redirect("/dashboard")
 
