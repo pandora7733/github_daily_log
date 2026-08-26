@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 import requests
 from flask import Flask, redirect, request, session, jsonify, render_template
 
+from model import CommitRetroModel
+
 # .env 파일 불러오기
 load_dotenv()
 
@@ -22,6 +24,56 @@ GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
 GITHUB_REDIRECT_URI = os.getenv("GITHUB_REDIRECT_URI")
 
 LOCAL_TZ = ZoneInfo("Asia/Seoul")
+
+db_model = CommitRetroModel()
+
+
+def ensure_db_user():
+    github_user = session.get("github_user")
+    access_token = session.get("github_access_token")
+
+    if not github_user or not access_token:
+        return None
+
+    if session.get("db_user_id"):
+        return session["db_user_id"]
+
+    db_user = db_model.get_or_create_user(
+        github_id=str(github_user["id"]),
+        username=github_user.get("login", ""),
+        avatar_url=github_user.get("avatar_url", ""),
+        bio=github_user.get("bio", "") or "",
+        access_token=access_token,
+    )
+    session["db_user_id"] = str(db_user["_id"])
+    return session["db_user_id"]
+
+
+def serialize_note(retrospective):
+    return {
+        "id": str(retrospective["_id"]),
+        "title": retrospective.get("title", "Note"),
+        "content": retrospective.get("content", ""),
+    }
+
+
+def serialize_postit(postit):
+    return {
+        "id": str(postit["_id"]),
+        "content": postit.get("content", ""),
+    }
+
+
+def get_user_notes(user_id):
+    retrospectives = db_model.get_user_retrospectives(user_id)
+    retrospectives.sort(key=lambda item: item.get("createdAt", datetime.min))
+    return [serialize_note(item) for item in retrospectives]
+
+
+def get_user_postits(user_id):
+    postits = db_model.get_user_postits(user_id)
+    postits.sort(key=lambda item: item.get("createdAt", datetime.min))
+    return [serialize_postit(item) for item in postits]
 
 
 def to_local_date(date_str):
@@ -216,6 +268,15 @@ def github_callback():
     session["github_user"] = user_data
     session["github_access_token"] = access_token
 
+    db_user = db_model.get_or_create_user(
+        github_id=str(user_data["id"]),
+        username=user_data.get("login", ""),
+        avatar_url=user_data.get("avatar_url", ""),
+        bio=user_data.get("bio", "") or "",
+        access_token=access_token,
+    )
+    session["db_user_id"] = str(db_user["_id"])
+
     return redirect("/dashboard")
 
 @app.route('/register', methods=['POST'])
@@ -245,7 +306,7 @@ def logout():
     session.clear()
 
     print("logout")
-    return redirect("/")
+    return redirect("/login")
 
 @app.route("/api/repos")
 def github_repos():
@@ -410,6 +471,10 @@ def dashboard():
     commit_groups = group_commits_by_period(all_commits)
     commits_by_date = build_commits_by_date(all_commits)
 
+    db_user_id = ensure_db_user()
+    notes = get_user_notes(db_user_id) if db_user_id else []
+    postits = get_user_postits(db_user_id) if db_user_id else []
+
     return render_template(
         'dashboard.html',
         repos=repos,
@@ -417,6 +482,8 @@ def dashboard():
         commit_groups=commit_groups,
         commits_by_date=commits_by_date,
         calendar=calendar,
+        notes=notes,
+        postits=postits,
     )
 
 @app.route('/dashboard/profile', methods=['GET'])
@@ -522,6 +589,105 @@ def github_contributions():
         calendar=calendar,
         weeks=weeks
     )
+
+
+@app.route("/api/notes", methods=["POST"])
+def create_note():
+    user_id = ensure_db_user()
+    if not user_id:
+        return jsonify({"error": "로그인이 필요합니다."}), 401
+
+    data = request.json or {}
+    title = (data.get("title") or "Note").strip() or "Note"
+    content = data.get("content") or ""
+
+    note_id = db_model.create_retrospective(user_id, title, content)
+    return jsonify({
+        "id": str(note_id),
+        "title": title,
+        "content": content,
+    }), 201
+
+
+@app.route("/api/notes/<note_id>", methods=["PUT"])
+def update_note(note_id):
+    user_id = ensure_db_user()
+    if not user_id:
+        return jsonify({"error": "로그인이 필요합니다."}), 401
+
+    data = request.json or {}
+    updated = db_model.update_retrospective(
+        note_id,
+        user_id,
+        title=data.get("title"),
+        content=data.get("content"),
+    )
+
+    if not updated:
+        return jsonify({"error": "노트를 수정하지 못했습니다."}), 404
+
+    return jsonify({"success": True})
+
+
+@app.route("/api/notes/<note_id>", methods=["DELETE"])
+def delete_note(note_id):
+    user_id = ensure_db_user()
+    if not user_id:
+        return jsonify({"error": "로그인이 필요합니다."}), 401
+
+    deleted = db_model.delete_retrospective(note_id, user_id)
+    if not deleted:
+        return jsonify({"error": "노트를 삭제하지 못했습니다."}), 404
+
+    return jsonify({"success": True})
+
+
+@app.route("/api/postits", methods=["POST"])
+def create_postit():
+    user_id = ensure_db_user()
+    if not user_id:
+        return jsonify({"error": "로그인이 필요합니다."}), 401
+
+    data = request.json or {}
+    content = data.get("content") or ""
+
+    postit_id = db_model.create_postit(user_id, content)
+    return jsonify({
+        "id": str(postit_id),
+        "content": content,
+    }), 201
+
+
+@app.route("/api/postits/<postit_id>", methods=["PUT"])
+def update_postit(postit_id):
+    user_id = ensure_db_user()
+    if not user_id:
+        return jsonify({"error": "로그인이 필요합니다."}), 401
+
+    data = request.json or {}
+    content = data.get("content")
+    if content is None:
+        return jsonify({"error": "content가 필요합니다."}), 400
+
+    updated = db_model.update_postit(postit_id, user_id, content)
+    if not updated:
+        return jsonify({"error": "메모를 수정하지 못했습니다."}), 404
+
+    return jsonify({"success": True})
+
+
+@app.route("/api/postits/<postit_id>", methods=["DELETE"])
+def delete_postit(postit_id):
+    user_id = ensure_db_user()
+    if not user_id:
+        return jsonify({"error": "로그인이 필요합니다."}), 401
+
+    deleted = db_model.delete_postit(postit_id, user_id)
+    if not deleted:
+        return jsonify({"error": "메모를 삭제하지 못했습니다."}), 404
+
+    return jsonify({"success": True})
+
 
 if __name__ == '__main__':
     app.run(host='localhost', port=PORT, debug=True)

@@ -102,7 +102,7 @@ class CommitRetroModel:
             {"_id": ObjectId(retro_id), "userId": ObjectId(user_id)},
             {"$set": update_data}
         )
-        return result.modified_count > 0
+        return result.matched_count > 0
 
     def delete_retrospective(self, retro_id, user_id):
         """회고록 삭제 (Delete) - 본인 확인 포함"""
@@ -121,7 +121,7 @@ class CommitRetroModel:
                 "updatedAt": datetime.now()
             }}
         )
-        return result.modified_count > 0
+        return result.matched_count > 0
 
     def delete_postit(self, postit_id, user_id):
         """포스트잇 삭제 (Delete) - 본인 확인 포함"""
