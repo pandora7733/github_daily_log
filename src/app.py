@@ -232,11 +232,12 @@ def github_callback():
         
         result = db.users.insert_one(new_user)
         
-        session["user_id"] = str(result.inserted_id)
-        session["username"] = github_username
-        session["email"] = github_email
+        session["user_id"] = str(user["_id"])
+        session["username"] = user.get("username")
+        session["email"] = user.get("email")
         
-        session["github_access_token"] = access_token
+        if user.get("provider") == "github":
+            session["github_access_token"] = user.get("github_access_token")
         
         return redirect("/dashboard")
 
