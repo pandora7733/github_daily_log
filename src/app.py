@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, render_template
 
 # .env 파일 불러오기
 load_dotenv()
@@ -15,6 +15,10 @@ app = Flask(__name__)
 @app.route('/')
 def home():
     return "Hello, Flask!"
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
 
 if __name__ == '__main__':
     app.run(host='localhost', port=port, debug=True)
