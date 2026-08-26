@@ -1,5 +1,6 @@
 body {
     margin: 0;
+<<<<<<< HEAD
 }
 
 
@@ -61,4 +62,6 @@ body {
 
 .toggleSwitch, .toggleButton {
   transition: all 0.2s ease-in;
+=======
+>>>>>>> 412d10a (Message A)
 }
