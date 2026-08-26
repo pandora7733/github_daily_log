@@ -63,7 +63,7 @@ def fetch_repo_commits(access_token, owner, repo_name, per_page=100):
     return response.json()
 
 
-def normalize_commit(commit, repo_name):
+def normalize_commit(commit, repo_name, repo_url=None):
     message = commit.get("commit", {}).get("message", "")
     return {
         "sha": commit.get("sha"),
@@ -73,6 +73,7 @@ def normalize_commit(commit, repo_name):
         "date": commit.get("commit", {}).get("author", {}).get("date"),
         "url": commit.get("html_url"),
         "repo_name": repo_name,
+        "repo_url": repo_url,
     }
 
 
@@ -152,115 +153,9 @@ def collect_commits_from_repos(access_token, repos):
         raw_commits = fetch_repo_commits(access_token, owner, repo_name)
 
         for commit in raw_commits:
-            all_commits.append(normalize_commit(commit, repo["name"]))
-
-    return all_commits
-
-def to_local_date(date_str):
-    commit_dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
-    return commit_dt.astimezone(LOCAL_TZ).date()
-
-
-def get_commit_period(commit_date, today):
-    days_ago = (today - commit_date).days
-
-    if days_ago == 0:
-        return "today"
-    if 1 <= days_ago <= 7:
-        return "week"
-    if 8 <= days_ago < 365:
-        return "month"
-    if days_ago >= 365:
-        return "year"
-
-    return None
-
-
-def fetch_repo_commits(access_token, owner, repo_name, per_page=100):
-    response = requests.get(
-        f"https://api.github.com/repos/{owner}/{repo_name}/commits",
-        headers={
-            "Authorization": f"Bearer {access_token}",
-            "Accept": "application/vnd.github+json",
-        },
-        params={"per_page": per_page},
-    )
-
-    if response.status_code != 200:
-        return []
-
-    return response.json()
-
-
-def normalize_commit(commit, repo_name):
-    message = commit.get("commit", {}).get("message", "")
-    return {
-        "sha": commit.get("sha"),
-        "message": message,
-        "title": message.split("\n")[0] if message else "No message",
-        "author": commit.get("commit", {}).get("author", {}).get("name"),
-        "date": commit.get("commit", {}).get("author", {}).get("date"),
-        "url": commit.get("html_url"),
-        "repo_name": repo_name,
-    }
-
-
-def group_commits_by_period(all_commits):
-    today = datetime.now(LOCAL_TZ).date()
-    buckets = defaultdict(lambda: defaultdict(list))
-
-    for commit in all_commits:
-        date_str = commit.get("date")
-        if not date_str:
-            continue
-
-        commit_date = to_local_date(date_str)
-        period = get_commit_period(commit_date, today)
-
-        if not period:
-            continue
-
-        buckets[period][commit_date.isoformat()].append(
-            {**commit, "parsed_date": commit_date}
-        )
-
-    result = {"today": [], "week": [], "month": [], "year": []}
-
-    for period in result:
-        day_list = []
-
-        for commits in buckets.get(period, {}).values():
-            commits.sort(key=lambda item: item["date"], reverse=True)
-            latest = commits[0]
-
-            day_list.append({
-                "date_display": latest["parsed_date"].strftime("%Y.%m.%d"),
-                "repo_name": latest["repo_name"],
-                "title": latest["title"],
-                "count": len(commits),
-                "url": latest["url"],
-            })
-
-        day_list.sort(key=lambda item: item["date_display"], reverse=True)
-        result[period] = day_list
-
-    return result
-
-
-def collect_commits_from_repos(access_token, repos):
-    all_commits = []
-
-    for repo in repos:
-        full_name = repo.get("full_name", "")
-        owner, _, repo_name = full_name.partition("/")
-
-        if not owner or not repo_name:
-            continue
-
-        raw_commits = fetch_repo_commits(access_token, owner, repo_name)
-
-        for commit in raw_commits:
-            all_commits.append(normalize_commit(commit, repo["name"]))
+            all_commits.append(
+                normalize_commit(commit, repo["name"], repo.get("url"))
+            )
 
     return all_commits
 
@@ -631,7 +526,8 @@ def github_commits(owner, repo):
         }), response.status_code
 
     commits = response.json()
-    result = [normalize_commit(commit, repo) for commit in commits]
+    repo_url = f"https://github.com/{owner}/{repo}"
+    result = [normalize_commit(commit, repo, repo_url) for commit in commits]
 
     return jsonify(result)
 

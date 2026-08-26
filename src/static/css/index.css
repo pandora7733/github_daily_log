@@ -220,6 +220,10 @@ body {
   cursor: pointer;
 }
 
+.commit-timeline__more.hidden {
+  display: none;
+}
+
 .commit-timeline__more:hover {
   text-decoration: underline;
 }

@@ -28,6 +28,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function formatDateTime(dateStr) {
         const date = new Date(dateStr);
+
+        if (Number.isNaN(date.getTime())) {
+            return "";
+        }
+
         return date.toLocaleString("ko-KR", {
             year: "numeric",
             month: "short",
@@ -40,18 +45,23 @@ document.addEventListener("DOMContentLoaded", () => {
     function setActiveButton(button) {
         if (activeButton) {
             activeButton.classList.remove("bg-gray-200");
+            activeButton.setAttribute("aria-pressed", "false");
         }
 
         activeButton = button;
 
         if (activeButton) {
             activeButton.classList.add("bg-gray-200");
+            activeButton.setAttribute("aria-pressed", "true");
         }
     }
 
     function renderCommitItem(commit, index, commits) {
         const sha = (commit.sha || "").slice(0, 7);
         const author = commit.author || "Unknown";
+        const commitUrl = commit.url || "#";
+        const repoUrl = commit.repo_url || commitUrl;
+        const formattedDate = formatDateTime(commit.date);
         const isHidden = index >= INITIAL_VISIBLE_COUNT && !expanded;
         const lastVisibleIndex = expanded
             ? commits.length - 1
@@ -65,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <span class="commit-timeline__author">${escapeHtml(author)}</span>
                     committed to
                     <a
-                        href="${escapeHtml(commit.url)}"
+                        href="${escapeHtml(repoUrl)}"
                         target="_blank"
                         rel="noopener noreferrer"
                         class="commit-timeline__repo"
@@ -73,12 +83,12 @@ document.addEventListener("DOMContentLoaded", () => {
                         ${escapeHtml(commit.repo_name)}
                     </a>
                     <span class="commit-timeline__time">
-                        · ${formatDateTime(commit.date)}
+                        ${formattedDate ? `· ${escapeHtml(formattedDate)}` : ""}
                     </span>
                 </p>
                 <p class="commit-timeline__message">
                     <a
-                        href="${escapeHtml(commit.url)}"
+                        href="${escapeHtml(commitUrl)}"
                         target="_blank"
                         rel="noopener noreferrer"
                         class="commit-timeline__message-link"
@@ -96,10 +106,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (hiddenCount <= 0) {
             moreButton.classList.add("hidden");
+            moreButton.setAttribute("aria-expanded", "false");
             return;
         }
 
         moreButton.classList.remove("hidden");
+        moreButton.setAttribute("aria-expanded", String(expanded));
         moreButton.textContent = expanded
             ? "접기"
             : `더보기 (${hiddenCount}개)`;
@@ -142,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
     dayButtons.forEach((button) => {
         button.addEventListener("click", () => {
             const date = button.dataset.date;
-            const displayDate = button.querySelector(".font-semibold")?.textContent || date;
+            const displayDate = button.dataset.dateDisplay || date;
 
             setActiveButton(button);
             renderCommits(date, displayDate);

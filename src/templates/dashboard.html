@@ -113,6 +113,9 @@
                       type="button"
                       class="commit-day-btn flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100"
                       data-date="{{ day.date }}"
+                      data-date-display="{{ day.date_display }}"
+                      aria-controls="commit-detail"
+                      aria-pressed="false"
                     >
                       <span class="font-semibold text-lg">{{ day.date_display }}</span>
                       <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">
@@ -191,18 +194,6 @@
 
           </div>
 
-          <div id="commit-detail" class="commit-timeline hidden w-full max-w-3xl mt-8 px-2">
-            <h3 id="commit-detail-title" class="commit-timeline__heading"></h3>
-            <ol id="commit-detail-list" class="commit-timeline__list"></ol>
-            <button
-              id="commit-detail-more"
-              type="button"
-              class="commit-timeline__more hidden"
-            >
-              더보기
-            </button>
-          </div>
-          
         </div>
 
 
@@ -247,6 +238,23 @@
 
         </div>
 
+        <section
+          id="commit-detail"
+          class="commit-timeline hidden w-full max-w-3xl mt-8 px-2"
+          aria-live="polite"
+        >
+          <h3 id="commit-detail-title" class="commit-timeline__heading"></h3>
+          <ol id="commit-detail-list" class="commit-timeline__list"></ol>
+          <button
+            id="commit-detail-more"
+            type="button"
+            class="commit-timeline__more hidden"
+            aria-controls="commit-detail-list"
+            aria-expanded="false"
+          >
+            더보기
+          </button>
+        </section>
 
         <div
           class="memo-card memo-card--note relative w-340 min-h-65 bg-gray-100 p-4
