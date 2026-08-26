@@ -29,7 +29,7 @@ class CommitRetroModel:
         user = self.users.find_one({"githubId": github_id})
         if user:
             return user
-            
+
         user_data = {
             "githubId": github_id,
             "username": username,

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로그인</title>
-    <link rel="stylesheet" href="/src/static/css/login_styles.css">
+    <title>Github daily log login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login_styles.css') }}">
 </head>
 <body>
     <div class="container">
@@ -17,9 +17,9 @@
         </div>
         <a href="sc" id="Pass">Forgot your Password?</a>
         <br>
-        <input type="submit" value="Sign in" id="sign">
+        <button type="submit" id="signIn">Sign in</button>
         <br>
-        <a href="register.html" id="reg">Create new account</a>
+        <a href="register" id="reg">Create new account</a>
         <br>
         <h5 id="or">Or continue with</h5>
         <div class="github">
