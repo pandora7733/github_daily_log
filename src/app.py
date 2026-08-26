@@ -156,6 +156,5 @@ def profile():
     return render_template('profile.html')
 
 
-
 if __name__ == '__main__':
     app.run(host='localhost', port=PORT, debug=True)

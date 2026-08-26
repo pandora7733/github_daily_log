@@ -13,11 +13,11 @@
       qwer
     </header>
     <div class="justify-center flex">
-      <div id="content" class="w-[655px]">
+      <div id="content" class="w-163.75">
         <div class="profile-group-main flex gap-4">
           <div class="profile-group my-2">
             <label class="display-name font-bold">
-              Profile picture
+              <a href="#" id="profile-github">Profile picture</a>
             </label>
             <div class="group relative cursor-pointer mt-2">
               <img id="profile-img" class="rounded-xl bg-white group-hover:brightness-50 transition" src="https://api.dicebear.com/10.x/identicon/svg?seed=default" width="150" height="150">
@@ -35,7 +35,7 @@
                 </label>
               </div>
               <div class="form-grup-body my-2">
-                <input placeholder="input" class="form-control border border-gray-500 rounded-lg px-2 w-full">
+                <input value="" placeholder="input" class="form-control border border-gray-500 rounded-lg px-2 w-full">
               </div>
             </div>
             <div class="form-group">
@@ -45,7 +45,7 @@
                 </label>
               </div>
               <div class="form-grup-body my-2">
-                <textarea placeholder="input" class="forom-control border border-gray-500 rounded-lg px-2 h-21 w-full"></textarea>
+                <textarea id="bio-github" placeholder="input" class="forom-control resize-none border border-gray-500 rounded-lg px-2 h-21 w-full"></textarea>
               </div>
             </div>
           </div>
@@ -59,202 +59,9 @@
           <label class="display-name font-bold">
             Repositories
           </label>
-          <div class="grid grid-cols-2 gap-4 my-2">
+          <div id="repo-list" class="grid grid-cols-2 gap-4 my-2">
 
-            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
-              <div class="repo-item flex">
-                <span class="repo-names font-medium text-blue-800">
-                  <a href="#"><span id="repo-name">Name/repo01</span></a>
-                </span>
-                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
-                  <span id="repo-label">Public</span>
-                </span>
-              </div>
-              <div class="p-4.5"></div>
-              <span class="repo-lang text-[12px]">
-                  Python
-              </span>
-            </div>
-
-            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
-              <div class="repo-item flex">
-                <span class="repo-names font-medium text-blue-800">
-                  <a href="#"><span id="repo-name">Name/repo01</span></a>
-                </span>
-                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
-                  <span id="repo-label">Public</span>
-                </span>
-              </div>
-              <div class="p-4.5"></div>
-              <span class="repo-lang text-[12px]">
-                  Python
-              </span>
-            </div>
-
-            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
-              <div class="repo-item flex">
-                <span class="repo-names font-medium text-blue-800">
-                  <a href="#"><span id="repo-name">Name/repo01</span></a>
-                </span>
-                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
-                  <span id="repo-label">Public</span>
-                </span>
-              </div>
-              <div class="p-4.5"></div>
-              <span class="repo-lang text-[12px]">
-                  Python
-              </span>
-            </div>
-
-            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
-              <div class="repo-item flex">
-                <span class="repo-names font-medium text-blue-800">
-                  <a href="#"><span id="repo-name">Name/repo01</span></a>
-                </span>
-                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
-                  <span id="repo-label">Public</span>
-                </span>
-              </div>
-              <div class="p-4.5"></div>
-              <span class="repo-lang text-[12px]">
-                  Python
-              </span>
-            </div>
-
-            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
-              <div class="repo-item flex">
-                <span class="repo-names font-medium text-blue-800">
-                  <a href="#"><span id="repo-name">Name/repo01</span></a>
-                </span>
-                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
-                  <span id="repo-label">Public</span>
-                </span>
-              </div>
-              <div class="p-4.5"></div>
-              <span class="repo-lang text-[12px]">
-                  Python
-              </span>
-            </div>
-
-            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
-              <div class="repo-item flex">
-                <span class="repo-names font-medium text-blue-800">
-                  <a href="#"><span id="repo-name">Name/repo01</span></a>
-                </span>
-                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
-                  <span id="repo-label">Public</span>
-                </span>
-              </div>
-              <div class="p-4.5"></div>
-              <span class="repo-lang text-[12px]">
-                  Python
-              </span>
-            </div>
-
-            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
-              <div class="repo-item flex">
-                <span class="repo-names font-medium text-blue-800">
-                  <a href="#"><span id="repo-name">Name/repo01</span></a>
-                </span>
-                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
-                  <span id="repo-label">Public</span>
-                </span>
-              </div>
-              <div class="p-4.5"></div>
-              <span class="repo-lang text-[12px]">
-                  Python
-              </span>
-            </div>
-
-            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
-              <div class="repo-item flex">
-                <span class="repo-names font-medium text-blue-800">
-                  <a href="#"><span id="repo-name">Name/repo01</span></a>
-                </span>
-                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
-                  <span id="repo-label">Public</span>
-                </span>
-              </div>
-              <div class="p-4.5"></div>
-              <span class="repo-lang text-[12px]">
-                  Python
-              </span>
-            </div>
-
-            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
-              <div class="repo-item flex">
-                <span class="repo-names font-medium text-blue-800">
-                  <a href="#"><span id="repo-name">Name/repo01</span></a>
-                </span>
-                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
-                  <span id="repo-label">Public</span>
-                </span>
-              </div>
-              <div class="p-4.5"></div>
-              <span class="repo-lang text-[12px]">
-                  Python
-              </span>
-            </div>
-
-            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
-              <div class="repo-item flex">
-                <span class="repo-names font-medium text-blue-800">
-                  <a href="#"><span id="repo-name">Name/repo01</span></a>
-                </span>
-                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
-                  <span id="repo-label">Public</span>
-                </span>
-              </div>
-              <div class="p-4.5"></div>
-              <span class="repo-lang text-[12px]">
-                  Python
-              </span>
-            </div>
-
-            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
-              <div class="repo-item flex">
-                <span class="repo-names font-medium text-blue-800">
-                  <a href="#"><span id="repo-name">Name/repo01</span></a>
-                </span>
-                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
-                  <span id="repo-label">Public</span>
-                </span>
-              </div>
-              <div class="p-4.5"></div>
-              <span class="repo-lang text-[12px]">
-                  Python
-              </span>
-            </div>
-
-            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
-              <div class="repo-item flex">
-                <span class="repo-names font-medium text-blue-800">
-                  <a href="#"><span id="repo-name">Name/repo01</span></a>
-                </span>
-                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
-                  <span id="repo-label">Public</span>
-                </span>
-              </div>
-              <div class="p-4.5"></div>
-              <span class="repo-lang text-[12px]">
-                  Python
-              </span>
-            </div>
-
-            <div class="repo-box border border-gray-500 rounded-lg p-4 h-30">
-              <div class="repo-item flex">
-                <span class="repo-names font-medium text-blue-800">
-                  <a href="#"><span id="repo-name">Name/repo01</span></a>
-                </span>
-                <span class="repo-labels flex-auto text-right text-gray-500 text-[12px]">
-                  <span id="repo-label">Public</span>
-                </span>
-              </div>
-              <div class="p-4.5"></div>
-              <span class="repo-lang text-[12px]">
-                  Python
-              </span>
-            </div>
+            <!-- 리포지토리 카드 들어갈 자리 -->
 
           </div>
         </div>
