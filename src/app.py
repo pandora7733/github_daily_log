@@ -334,7 +334,7 @@ def github_callback():
     client = MongoClient("mongodb+srv://team_user1:1234ABCD@cluster0.7gpdbga.mongodb.net/commit_retro_db?appName=Cluster0")
     db = client.commit_retro_db
 
-    user = db.users.find_one({"github_id": github_id})
+    user = db.users.find_one({"githubid": github_id})
     
     if user:
 
@@ -355,7 +355,7 @@ def github_callback():
             "password": auto_password,       
             "username": github_username,    
             "provider": "github",           
-            "github_id": github_id,          
+            "githubid": github_id,          
             "avatar_url": user_data.get("avatar_url"),
             "createdAt": datetime.utcnow()
         }
@@ -703,5 +703,17 @@ def github_contributions():
         weeks=weeks
     )
 
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(PORT) if PORT else 5000, debug=True)
+    from pymongo import MongoClient
+    import os
+    import urllib.parse
+    
+    username = "team_user1"
+    password = urllib.parse.quote_plus("1234ABCD")
+    mongo_uri = f"mongodb+srv://team_user1:1234ABCD@cluster0.7gpdbga.mongodb.net/commit_retro_db?appName=Cluster0"
+    
+    client = MongoClient(mongo_uri)
+    db = client.commit_retro_db
+
+    app.run(host='0.0.0.0', port=int(PORT) if PORT else 3000, debug=True)
