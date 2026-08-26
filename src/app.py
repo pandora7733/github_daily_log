@@ -6,7 +6,13 @@ import uuid
 
 from dotenv import load_dotenv
 import requests
+from bson.objectid import ObjectId
 from flask import Flask, redirect, request, session, jsonify, render_template
+
+try:
+    from .model import CommitRetroModel
+except ImportError:
+    from model import CommitRetroModel
 
 LOCAL_TZ = ZoneInfo("Asia/Seoul")
 
@@ -25,6 +31,43 @@ GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
 GITHUB_REDIRECT_URI = os.getenv("GITHUB_REDIRECT_URI")
 
 LOCAL_TZ = ZoneInfo("Asia/Seoul")
+retro_model = None
+
+
+def get_retro_model():
+    """회고록 모델을 필요할 때 한 번만 생성한다."""
+    global retro_model
+
+    if retro_model is None:
+        retro_model = CommitRetroModel()
+
+    return retro_model
+
+
+def get_session_user_id():
+    """GitHub 로그인과 일반 로그인의 세션 형식 차이를 흡수한다."""
+    user_id = session.get("user_id")
+    if user_id:
+        return user_id
+
+    user = session.get("github_user") or {}
+    return user.get("_id")
+
+
+def serialize_retrospective(retrospective):
+    """MongoDB 회고록을 프론트엔드에서 사용할 JSON 형태로 변환한다."""
+    return {
+        "id": str(retrospective["_id"]),
+        "title": retrospective.get("title", "Note"),
+        "content": retrospective.get("content", ""),
+        "date": retrospective.get("date").isoformat()
+        if retrospective.get("date")
+        else None,
+    }
+
+
+def is_valid_user_id(user_id):
+    return bool(user_id and ObjectId.is_valid(str(user_id)))
 
 
 def to_local_date(date_str):
@@ -225,44 +268,28 @@ def github_callback():
     if not github_email:
         github_email = f"{github_username}@github.com"
 
-    from pymongo import MongoClient
-    client = MongoClient("mongodb+srv://team_user1:1234ABCD@cluster0.7gpdbga.mongodb.net/commit_retro_db?appName=Cluster0")
-    db = client.commit_retro_db
+    user = get_retro_model().get_or_create_user(
+        github_id=github_id,
+        username=github_username,
+        avatar_url=user_data.get("avatar_url"),
+        bio=user_data.get("bio") or "",
+        access_token=access_token,
+    )
+    user_id = str(user["_id"])
 
-    user = db.users.find_one({"githubid": github_id})
-    
-    if user:
+    session["user_id"] = user_id
+    session["username"] = user["username"]
+    session["email"] = github_email
+    session["github_access_token"] = access_token
+    session["github_user"] = {
+        "_id": user_id,
+        "username": user["username"],
+        "email": github_email,
+        "avatarUrl": user.get("avatarUrl"),
+        "bio": user.get("bio", ""),
+    }
 
-        session["user_id"] = str(user["_id"])
-        session["username"] = user["username"]
-        session["email"] = user["email"]
-        session["github_access_token"] = access_token
-        return redirect("/dashboard")
-        
-    else:
-        import uuid
-        from datetime import datetime
-        
-        auto_password = str(uuid.uuid4())[:8]  
-        
-        new_user = {
-            "email": github_email,
-            "password": auto_password,       
-            "username": github_username,    
-            "provider": "github",           
-            "githubid": github_id,          
-            "avatar_url": user_data.get("avatar_url"),
-            "createdAt": datetime.utcnow()
-        }
-        
-        result = db.users.insert_one(new_user)
-        
-        session["user_id"] = str(result.inserted_id)
-        session["username"] = new_user["username"]
-        session["email"] = new_user["email"]
-        session["github_access_token"] = access_token
-        
-        return redirect("/dashboard")
+    return redirect("/dashboard")
 
 @app.route('/register', methods=['POST'])
 def confirm_email():
@@ -493,6 +520,78 @@ def dashboard():
         commits_by_date=commits_by_date,
         calendar=calendar,
     )
+
+
+@app.route("/api/retrospectives", methods=["GET"])
+def get_retrospectives():
+    """현재 로그인한 사용자의 Note 목록을 최신순으로 반환한다."""
+    user_id = get_session_user_id()
+    if not is_valid_user_id(user_id):
+        return jsonify({"error": "로그인이 필요합니다."}), 401
+
+    retrospectives = get_retro_model().get_user_retrospectives(user_id)
+    return jsonify([serialize_retrospective(retro) for retro in retrospectives])
+
+
+@app.route("/api/retrospectives", methods=["POST"])
+def create_retrospective():
+    """content 영역의 Note를 현재 로그인한 사용자의 회고록으로 저장한다."""
+    user_id = get_session_user_id()
+    if not is_valid_user_id(user_id):
+        return jsonify({"error": "로그인이 필요합니다."}), 401
+
+    data = request.get_json(silent=True) or {}
+    content = data.get("content")
+    if not isinstance(content, str) or not content.strip():
+        return jsonify({"error": "노트 내용을 입력해 주세요."}), 400
+
+    commits_snapshot = data.get("commits_snapshot", [])
+    if not isinstance(commits_snapshot, list):
+        return jsonify({"error": "커밋 정보 형식이 올바르지 않습니다."}), 400
+
+    retrospective_id = get_retro_model().create_retrospective(
+        user_id=user_id,
+        title=data.get("title") or "Note",
+        content=content,
+        commits_snapshot=commits_snapshot,
+    )
+    retrospective = get_retro_model().get_retrospective_detail(retrospective_id)
+
+    return jsonify({
+        "success": True,
+        "retrospective": serialize_retrospective(retrospective),
+    }), 201
+
+
+@app.route("/api/retrospectives/<retro_id>", methods=["PUT"])
+def update_retrospective(retro_id):
+    """이미 저장된 Note의 내용을 수정한다."""
+    user_id = get_session_user_id()
+    if not is_valid_user_id(user_id) or not ObjectId.is_valid(retro_id):
+        return jsonify({"error": "잘못된 요청입니다."}), 400
+
+    data = request.get_json(silent=True) or {}
+    content = data.get("content")
+    if not isinstance(content, str) or not content.strip():
+        return jsonify({"error": "노트 내용을 입력해 주세요."}), 400
+
+    model = get_retro_model()
+    retrospective = model.get_retrospective_detail(retro_id)
+    if not retrospective or str(retrospective.get("userId")) != str(user_id):
+        return jsonify({"error": "노트를 찾을 수 없습니다."}), 404
+
+    model.update_retrospective(
+        retro_id=retro_id,
+        user_id=user_id,
+        content=content,
+    )
+    updated_retrospective = model.get_retrospective_detail(retro_id)
+
+    return jsonify({
+        "success": True,
+        "retrospective": serialize_retrospective(updated_retrospective),
+    })
+
 
 @app.route('/dashboard/profile', methods=['GET'])
 def profile():

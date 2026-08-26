@@ -20,7 +20,13 @@ class CommitRetroModel:
 
     def _init_indexes(self):
         """기획서 및 피그마 조회 패턴에 맞춘 인덱스 설정"""
-        self.users.create_index([("githubId", ASCENDING)], unique=True)
+        # 기존 DB의 githubId_1 인덱스(sparse=True)와 동일한 옵션을 사용한다.
+        # local 회원처럼 githubId가 없는 문서도 users 컬렉션에 저장될 수 있다.
+        self.users.create_index(
+            [("githubId", ASCENDING)],
+            unique=True,
+            sparse=True,
+        )
         self.retrospectives.create_index([("userId", ASCENDING), ("date", DESCENDING)])
         self.postits.create_index([("userId", ASCENDING), ("createdAt", DESCENDING)])
 
