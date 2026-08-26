@@ -26,7 +26,7 @@ body {
     padding-top: 48px;
 }
 .container input[type="email"] ,
-.container input[type="text"] {
+.container input[type="password"] {
     width: 300px;
     height: 40px;
     margin: 8px;
@@ -38,7 +38,7 @@ body {
 }
 
 .container input[type="email"]:focus,
-.container input[type="text"]:focus {
+.container input[type="password"]:focus {
     border-color: #1D4ED8;
 }
 #signIn {
