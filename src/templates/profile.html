@@ -9,9 +9,38 @@
 </head>
 <body>
   <div>
-    <header class="sticky header bg-red-500 p-4 top-0 z-50">
-      qwer
+
+    <header class="p-2 bg-indigo-50 flex justify-between border-b-3 border-b-slate-400">
+      <div id="header-togglebutton" class="invisible">
+        <input type="checkbox" id="toggle" hidden>
+        <label for="toggle" class="toggleSwitch">
+          <span class="toggleButton"></span>
+          <span class="text-2xl ml-2">2D</span>
+          <span class="text-2xl ml-3">3D</span>
+        </label>
+      </div>
+      <div 
+        id="github_daily_log"
+        class="text-4xl font-bold"
+      >
+        Github Daily Log
+      </div>
+      <div>
+        <button class="cursor-pointer" onclick="location.href='/dashboard'">
+          <img class="
+            inline-flex 
+            object-cover 
+            border-4 
+            border-gray-900 
+            rounded-xl
+            h-10" 
+            src="../static/image/home.svg" 
+            alt=""
+          >
+        </button>
+      </div>
     </header>
+
     <div class="justify-center flex">
       <div id="content" class="w-163.75">
         <div class="profile-group-main flex gap-4">
