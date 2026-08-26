@@ -17,12 +17,12 @@
         <div class="profile-group-main flex gap-4">
           <div class="profile-group my-2">
             <label class="display-name font-bold">
-              <a href="#" id="profile-github">Profile picture</a>
+              <a id="github-profile-img">Profile picture</a>
             </label>
             <div class="group relative cursor-pointer mt-2">
               <img id="profile-img" class="rounded-xl bg-white group-hover:brightness-50 transition" src="https://api.dicebear.com/10.x/identicon/svg?seed=default" width="150" height="150">
-              <span id="play-dice!" class="absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition">
-                play dice!
+              <span id="github-link" class="absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition">
+                view in github
               </span>
             </div>
           </div>
@@ -35,7 +35,7 @@
                 </label>
               </div>
               <div class="form-grup-body my-2">
-                <input value="" placeholder="input" class="form-control border border-gray-500 rounded-lg px-2 w-full">
+                <input id="github-name" value="" placeholder="input" class="form-control border border-gray-500 rounded-lg px-2 w-full">
               </div>
             </div>
             <div class="form-group">
@@ -45,14 +45,14 @@
                 </label>
               </div>
               <div class="form-grup-body my-2">
-                <textarea id="bio-github" placeholder="input" class="forom-control resize-none border border-gray-500 rounded-lg px-2 h-21 w-full"></textarea>
+                <textarea id="github-bio" placeholder="input" class="forom-control resize-none border border-gray-500 rounded-lg px-2 h-21 w-full"></textarea>
               </div>
             </div>
           </div>
         </div>
 
         <div class="profile-info text-right text-size text-[12px]">
-          <p>누적 활동일: <span id="active-date">-</span>일 | 최초 가입일: <time id="join-date">-</time></p>
+          <p>최근 활동일: <time id="active-date">-</time> | 최초 가입일: <time id="join-date">-</time></p>
         </div>
 
         <div class="repos-group">
