@@ -113,6 +113,9 @@
                       type="button"
                       class="commit-day-btn flex justify-between px-2 rounded-md cursor-pointer hover:bg-gray-100"
                       data-date="{{ day.date }}"
+                      data-date-display="{{ day.date_display }}"
+                      aria-controls="commit-detail"
+                      aria-pressed="false"
                     >
                       <span class="font-semibold text-lg">{{ day.date_display }}</span>
                       <span class="text-[0.9rem] text-blue-400 translate-y-2 underline">
@@ -191,18 +194,6 @@
 
           </div>
 
-          <div id="commit-detail" class="commit-timeline hidden w-full max-w-3xl mt-8 px-2">
-            <h3 id="commit-detail-title" class="commit-timeline__heading"></h3>
-            <ol id="commit-detail-list" class="commit-timeline__list"></ol>
-            <button
-              id="commit-detail-more"
-              type="button"
-              class="commit-timeline__more hidden"
-            >
-              더보기
-            </button>
-          </div>
-          
         </div>
 
 
@@ -247,6 +238,23 @@
 
         </div>
 
+        <section
+          id="commit-detail"
+          class="commit-timeline hidden w-full max-w-3xl mt-8 px-2"
+          aria-live="polite"
+        >
+          <h3 id="commit-detail-title" class="commit-timeline__heading"></h3>
+          <ol id="commit-detail-list" class="commit-timeline__list"></ol>
+          <button
+            id="commit-detail-more"
+            type="button"
+            class="commit-timeline__more hidden"
+            aria-controls="commit-detail-list"
+            aria-expanded="false"
+          >
+            더보기
+          </button>
+        </section>
 
         <div
           class="memo-card memo-card--note relative w-340 min-h-65 bg-gray-100 p-4
@@ -280,6 +288,43 @@
             aria-haspopup="menu"
           ></button>
         </div>
+
+        {% for retrospective in retrospectives %}
+          <div
+            class="memo-card memo-card--note relative w-340 min-h-65 bg-gray-100 p-4
+                  shadow-[4px_6px_12px_rgba(0,0,0,0.15)]
+                  overflow-hidden mb-8"
+            data-retrospective-id="{{ retrospective.id }}"
+            data-commit-date="{{ retrospective.commit_date or '' }}"
+          >
+            <span class="memo-title text-xl block font-bold text-gray-800 mb-3">
+              {{ retrospective.title or "Note" }}
+            </span>
+
+            <textarea
+              class="memo-input w-full bg-transparent
+                    outline-none resize-none overflow-hidden
+                    text-gray-700
+                    placeholder-gray-500"
+              name="memo"
+              rows="1"
+              placeholder="메모를 입력하세요"
+            >{{ retrospective.content }}</textarea>
+
+            <button
+              type="button"
+              class="memo-menu-btn absolute bottom-0 right-0
+                    w-10 h-10
+                    bg-gray-300
+                    hover:bg-gray-400
+                    transition-colors
+                    [clip-path:polygon(100%_0,0_100%,100%_100%)]
+                    cursor-pointer"
+              aria-label="메모 메뉴"
+              aria-haspopup="menu"
+            ></button>
+          </div>
+        {% endfor %}
       </div>
       <div id="sidebar-right" class="overflow-y-auto hide-scrollbar border-l-3 border-l-slate-400">
         <div class="flex items-center px-3 pt-3">
@@ -319,74 +364,41 @@
               aria-haspopup="menu"
             ></button>
           </div>
+          {% for postit in postits %}
+            <div
+              class="memo-card memo-card--post-it relative w-92 min-h-60 bg-yellow-200 p-4
+                    shadow-[4px_6px_12px_rgba(0,0,0,0.15)]
+                    overflow-hidden mb-8"
+              data-postit-id="{{ postit.id }}"
+            >
+              <span class="memo-title block font-semibold text-gray-700 mb-3">
+                memo
+              </span>
 
+              <textarea
+                class="memo-input w-full bg-transparent
+                      outline-none resize-none overflow-hidden
+                      text-gray-700
+                      placeholder-gray-500"
+                name="memo"
+                rows="1"
+                placeholder="메모를 입력하세요"
+              >{{ postit.content }}</textarea>
 
-          <div
-            class="memo-card memo-card--post-it relative w-92 min-h-60 bg-yellow-200 p-4
-                  shadow-[4px_6px_12px_rgba(0,0,0,0.15)]
-                  overflow-hidden mb-8"
-          >
-            <span class="memo-title block font-semibold text-gray-700 mb-3">
-              memo
-            </span>
-
-            <textarea
-              class="memo-input w-full bg-transparent
-                    outline-none resize-none overflow-hidden
-                    text-gray-700
-                    placeholder-gray-500"
-              name="memo"
-              rows="1"
-              placeholder="메모를 입력하세요"
-            ></textarea>
-
-            <button
-              type="button"
-              class="memo-menu-btn absolute bottom-0 right-0
-                    w-10 h-10
-                    bg-yellow-300
-                    hover:bg-yellow-400
-                    transition-colors
-                    [clip-path:polygon(100%_0,0_100%,100%_100%)]
-                    cursor-pointer"
-              aria-label="메모 메뉴"
-              aria-haspopup="menu"
-            ></button>
-          </div>
-
-
-          <div
-            class="memo-card memo-card--post-it relative w-92 min-h-60 bg-yellow-200 p-4
-                  shadow-[4px_6px_12px_rgba(0,0,0,0.15)]
-                  overflow-hidden mb-8"
-          >
-            <span class="memo-title block font-semibold text-gray-700 mb-3">
-              memo
-            </span>
-
-            <textarea
-              class="memo-input w-full bg-transparent
-                    outline-none resize-none overflow-hidden
-                    text-gray-700
-                    placeholder-gray-500"
-              name="memo"
-              rows="1"
-              placeholder="메모를 입력하세요"
-            ></textarea>
-
-            <button
-              type="button"
-              class="memo-menu-btn absolute bottom-0 right-0
-                    w-10 h-10
-                    bg-yellow-300
-                    hover:bg-yellow-400
-                    transition-colors
-                    [clip-path:polygon(100%_0,0_100%,100%_100%)]
-                    cursor-pointer"
-              aria-label="메모 메뉴"
-              aria-haspopup="menu"
-            ></button>
-          </div>
+              <button
+                type="button"
+                class="memo-menu-btn absolute bottom-0 right-0
+                      w-10 h-10
+                      bg-yellow-300
+                      hover:bg-yellow-400
+                      transition-colors
+                      [clip-path:polygon(100%_0,0_100%,100%_100%)]
+                      cursor-pointer"
+                aria-label="메모 메뉴"
+                aria-haspopup="menu"
+              ></button>
+            </div>
+          {% endfor %}
         </div>
       </div>
     </div>
@@ -409,6 +421,8 @@
   <script src="{{ url_for('static', filename='js/commit_detail.js') }}"></script>
   <script src="{{ url_for('static', filename='js/3D_jandi.js') }}" type="module"></script>
   <script src="{{ url_for('static', filename='js/post_it.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/post_it_storage.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/note.js') }}"></script>
 </body>
 </html>
 

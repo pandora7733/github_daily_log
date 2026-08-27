@@ -20,7 +20,13 @@ class CommitRetroModel:
 
     def _init_indexes(self):
         """기획서 및 피그마 조회 패턴에 맞춘 인덱스 설정"""
-        self.users.create_index([("githubId", ASCENDING)], unique=True)
+        # 기존 DB의 githubId_1 인덱스(sparse=True)와 동일한 옵션을 사용한다.
+        # local 회원처럼 githubId가 없는 문서도 users 컬렉션에 저장될 수 있다.
+        self.users.create_index(
+            [("githubId", ASCENDING)],
+            unique=True,
+            sparse=True,
+        )
         self.retrospectives.create_index([("userId", ASCENDING), ("date", DESCENDING)])
         self.postits.create_index([("userId", ASCENDING), ("createdAt", DESCENDING)])
 
@@ -47,7 +53,7 @@ class CommitRetroModel:
         """중앙 note 2026 영역에서 사용자가 작성한 회고록 저장 (Create)"""
         if commits_snapshot is None:
             commits_snapshot = []
-            
+
         retro_data = {
             "userId": ObjectId(user_id),
             "date": datetime.now(),
@@ -102,7 +108,7 @@ class CommitRetroModel:
             {"_id": ObjectId(retro_id), "userId": ObjectId(user_id)},
             {"$set": update_data}
         )
-        return result.modified_count > 0
+        return result.matched_count > 0
 
     def delete_retrospective(self, retro_id, user_id):
         """회고록 삭제 (Delete) - 본인 확인 포함"""
@@ -121,7 +127,7 @@ class CommitRetroModel:
                 "updatedAt": datetime.now()
             }}
         )
-        return result.modified_count > 0
+        return result.matched_count > 0
 
     def delete_postit(self, postit_id, user_id):
         """포스트잇 삭제 (Delete) - 본인 확인 포함"""

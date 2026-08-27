@@ -6,7 +6,13 @@ import uuid
 
 from dotenv import load_dotenv
 import requests
+from bson.objectid import ObjectId
 from flask import Flask, redirect, request, session, jsonify, render_template
+
+try:
+    from .model import CommitRetroModel
+except ImportError:
+    from model import CommitRetroModel
 
 LOCAL_TZ = ZoneInfo("Asia/Seoul")
 
@@ -25,7 +31,64 @@ GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
 GITHUB_REDIRECT_URI = os.getenv("GITHUB_REDIRECT_URI")
 
 LOCAL_TZ = ZoneInfo("Asia/Seoul")
+retro_model = None
 
+
+def get_retro_model():
+    """회고록 모델을 필요할 때 한 번만 생성한다."""
+    global retro_model
+
+    if retro_model is None:
+        retro_model = CommitRetroModel()
+
+    return retro_model
+
+
+def get_session_user_id():
+    """GitHub 로그인과 일반 로그인의 세션 형식 차이를 흡수한다."""
+    user_id = session.get("user_id")
+    if user_id:
+        return user_id
+
+    user = session.get("github_user") or {}
+    return user.get("_id")
+
+
+def serialize_retrospective(retrospective):
+    """MongoDB 회고록을 프론트엔드에서 사용할 JSON 형태로 변환한다."""
+    commits = retrospective.get("commits") or []
+    commit_date = None
+    if commits and isinstance(commits[0], dict):
+        raw_date = commits[0].get("commitDate") or commits[0].get("date")
+        if isinstance(raw_date, datetime):
+            commit_date = raw_date.date().isoformat()
+        elif raw_date:
+            commit_date = str(raw_date)[:10]
+
+    return {
+        "id": str(retrospective["_id"]),
+        "title": retrospective.get("title", "Note"),
+        "content": retrospective.get("content", ""),
+        "commits": commits,
+        "commit_date": commit_date,
+        "date": retrospective.get("date").isoformat()
+        if retrospective.get("date")
+        else None,
+    }
+
+
+def is_valid_user_id(user_id):
+    return bool(user_id and ObjectId.is_valid(str(user_id)))
+
+
+def serialize_postit(postit):
+    """MongoDB 포스트잇을 프론트엔드에서 사용할 JSON 형태로 변환한다."""
+    created_at = postit.get("createdAt")
+    return {
+        "id": str(postit["_id"]),
+        "content": postit.get("content", ""),
+        "created_at": created_at.isoformat() if created_at else None,
+    }
 
 def to_local_date(date_str):
     commit_dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
@@ -63,7 +126,7 @@ def fetch_repo_commits(access_token, owner, repo_name, per_page=100):
     return response.json()
 
 
-def normalize_commit(commit, repo_name):
+def normalize_commit(commit, repo_name, repo_url=None):
     message = commit.get("commit", {}).get("message", "")
     return {
         "sha": commit.get("sha"),
@@ -73,6 +136,7 @@ def normalize_commit(commit, repo_name):
         "date": commit.get("commit", {}).get("author", {}).get("date"),
         "url": commit.get("html_url"),
         "repo_name": repo_name,
+        "repo_url": repo_url,
     }
 
 
@@ -152,115 +216,9 @@ def collect_commits_from_repos(access_token, repos):
         raw_commits = fetch_repo_commits(access_token, owner, repo_name)
 
         for commit in raw_commits:
-            all_commits.append(normalize_commit(commit, repo["name"]))
-
-    return all_commits
-
-def to_local_date(date_str):
-    commit_dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
-    return commit_dt.astimezone(LOCAL_TZ).date()
-
-
-def get_commit_period(commit_date, today):
-    days_ago = (today - commit_date).days
-
-    if days_ago == 0:
-        return "today"
-    if 1 <= days_ago <= 7:
-        return "week"
-    if 8 <= days_ago < 365:
-        return "month"
-    if days_ago >= 365:
-        return "year"
-
-    return None
-
-
-def fetch_repo_commits(access_token, owner, repo_name, per_page=100):
-    response = requests.get(
-        f"https://api.github.com/repos/{owner}/{repo_name}/commits",
-        headers={
-            "Authorization": f"Bearer {access_token}",
-            "Accept": "application/vnd.github+json",
-        },
-        params={"per_page": per_page},
-    )
-
-    if response.status_code != 200:
-        return []
-
-    return response.json()
-
-
-def normalize_commit(commit, repo_name):
-    message = commit.get("commit", {}).get("message", "")
-    return {
-        "sha": commit.get("sha"),
-        "message": message,
-        "title": message.split("\n")[0] if message else "No message",
-        "author": commit.get("commit", {}).get("author", {}).get("name"),
-        "date": commit.get("commit", {}).get("author", {}).get("date"),
-        "url": commit.get("html_url"),
-        "repo_name": repo_name,
-    }
-
-
-def group_commits_by_period(all_commits):
-    today = datetime.now(LOCAL_TZ).date()
-    buckets = defaultdict(lambda: defaultdict(list))
-
-    for commit in all_commits:
-        date_str = commit.get("date")
-        if not date_str:
-            continue
-
-        commit_date = to_local_date(date_str)
-        period = get_commit_period(commit_date, today)
-
-        if not period:
-            continue
-
-        buckets[period][commit_date.isoformat()].append(
-            {**commit, "parsed_date": commit_date}
-        )
-
-    result = {"today": [], "week": [], "month": [], "year": []}
-
-    for period in result:
-        day_list = []
-
-        for commits in buckets.get(period, {}).values():
-            commits.sort(key=lambda item: item["date"], reverse=True)
-            latest = commits[0]
-
-            day_list.append({
-                "date_display": latest["parsed_date"].strftime("%Y.%m.%d"),
-                "repo_name": latest["repo_name"],
-                "title": latest["title"],
-                "count": len(commits),
-                "url": latest["url"],
-            })
-
-        day_list.sort(key=lambda item: item["date_display"], reverse=True)
-        result[period] = day_list
-
-    return result
-
-
-def collect_commits_from_repos(access_token, repos):
-    all_commits = []
-
-    for repo in repos:
-        full_name = repo.get("full_name", "")
-        owner, _, repo_name = full_name.partition("/")
-
-        if not owner or not repo_name:
-            continue
-
-        raw_commits = fetch_repo_commits(access_token, owner, repo_name)
-
-        for commit in raw_commits:
-            all_commits.append(normalize_commit(commit, repo["name"]))
+            all_commits.append(
+                normalize_commit(commit, repo["name"], repo.get("url"))
+            )
 
     return all_commits
 
@@ -330,44 +288,28 @@ def github_callback():
     if not github_email:
         github_email = f"{github_username}@github.com"
 
-    from pymongo import MongoClient
-    client = MongoClient("mongodb+srv://team_user1:1234ABCD@cluster0.7gpdbga.mongodb.net/commit_retro_db?appName=Cluster0")
-    db = client.commit_retro_db
+    user = get_retro_model().get_or_create_user(
+        github_id=github_id,
+        username=github_username,
+        avatar_url=user_data.get("avatar_url"),
+        bio=user_data.get("bio") or "",
+        access_token=access_token,
+    )
+    user_id = str(user["_id"])
 
-    user = db.users.find_one({"githubid": github_id})
-    
-    if user:
+    session["user_id"] = user_id
+    session["username"] = user["username"]
+    session["email"] = github_email
+    session["github_access_token"] = access_token
+    session["github_user"] = {
+        "_id": user_id,
+        "username": user["username"],
+        "email": github_email,
+        "avatarUrl": user.get("avatarUrl"),
+        "bio": user.get("bio", ""),
+    }
 
-        session["user_id"] = str(user["_id"])
-        session["username"] = user["username"]
-        session["email"] = user["email"]
-        session["github_access_token"] = access_token
-        return redirect("/dashboard")
-        
-    else:
-        import uuid
-        from datetime import datetime
-        
-        auto_password = str(uuid.uuid4())[:8]  
-        
-        new_user = {
-            "email": github_email,
-            "password": auto_password,       
-            "username": github_username,    
-            "provider": "github",           
-            "githubid": github_id,          
-            "avatar_url": user_data.get("avatar_url"),
-            "createdAt": datetime.utcnow()
-        }
-        
-        result = db.users.insert_one(new_user)
-        
-        session["user_id"] = str(result.inserted_id)
-        session["username"] = new_user["username"]
-        session["email"] = new_user["email"]
-        session["github_access_token"] = access_token
-        
-        return redirect("/dashboard")
+    return redirect("/dashboard")
 
 @app.route('/register', methods=['POST'])
 def confirm_email():
@@ -425,7 +367,7 @@ def logout():
     session.clear()
 
     print("logout")
-    return redirect("/")
+    return redirect("/login")
 
 @app.route("/api/repos")
 def github_repos():
@@ -589,6 +531,13 @@ def dashboard():
     all_commits = collect_commits_from_repos(access_token, repos)
     commit_groups = group_commits_by_period(all_commits)
     commits_by_date = build_commits_by_date(all_commits)
+    retrospectives = []
+    user_id = get_session_user_id()
+    if is_valid_user_id(user_id):
+        retrospectives = [
+            serialize_retrospective(retro)
+            for retro in get_retro_model().get_user_retrospectives(user_id)
+        ]
 
     return render_template(
         'dashboard.html',
@@ -597,7 +546,207 @@ def dashboard():
         commit_groups=commit_groups,
         commits_by_date=commits_by_date,
         calendar=calendar,
+        retrospectives=retrospectives,
+        postits=[
+            serialize_postit(postit)
+            for postit in get_retro_model().get_user_postits(user_id)
+        ] if is_valid_user_id(user_id) else [],
     )
+
+
+@app.route("/api/retrospectives", methods=["GET"])
+def get_retrospectives():
+    """현재 로그인한 사용자의 Note 목록을 최신순으로 반환한다."""
+    user_id = get_session_user_id()
+    if not is_valid_user_id(user_id):
+        return jsonify({"error": "로그인이 필요합니다."}), 401
+
+    retrospectives = get_retro_model().get_user_retrospectives(user_id)
+    return jsonify([serialize_retrospective(retro) for retro in retrospectives])
+
+
+@app.route("/api/postits", methods=["GET"])
+def get_postits():
+    """현재 로그인한 사용자의 post-it 목록을 최신순으로 반환한다."""
+    user_id = get_session_user_id()
+    if not is_valid_user_id(user_id):
+        return jsonify({"error": "로그인이 필요합니다."}), 401
+
+    postits = get_retro_model().get_user_postits(user_id)
+    return jsonify([serialize_postit(postit) for postit in postits])
+
+
+@app.route("/api/postits", methods=["POST"])
+def create_postit():
+    """우측 사이드바의 post-it을 현재 로그인한 사용자의 메모로 저장한다."""
+    user_id = get_session_user_id()
+    if not is_valid_user_id(user_id):
+        return jsonify({"error": "로그인이 필요합니다."}), 401
+
+    data = request.get_json(silent=True) or {}
+    content = data.get("content")
+    if not isinstance(content, str) or not content.strip():
+        return jsonify({"error": "post-it 내용을 입력해 주세요."}), 400
+
+    postit_id = get_retro_model().create_postit(
+        user_id=user_id,
+        content=content,
+    )
+
+    return jsonify({
+        "success": True,
+        "postit": {
+            "id": str(postit_id),
+            "content": content,
+        },
+    }), 201
+
+
+@app.route("/api/postits/<postit_id>", methods=["PUT"])
+def update_postit(postit_id):
+    """현재 로그인한 사용자의 post-it 내용을 수정한다."""
+    user_id = get_session_user_id()
+    if not is_valid_user_id(user_id) or not ObjectId.is_valid(postit_id):
+        return jsonify({"error": "잘못된 요청입니다."}), 400
+
+    data = request.get_json(silent=True) or {}
+    content = data.get("content")
+    if not isinstance(content, str) or not content.strip():
+        return jsonify({"error": "post-it 내용을 입력해 주세요."}), 400
+
+    updated = get_retro_model().update_postit(
+        postit_id=postit_id,
+        user_id=user_id,
+        content=content,
+    )
+    if not updated:
+        return jsonify({"error": "post-it을 찾을 수 없습니다."}), 404
+
+    return jsonify({
+        "success": True,
+        "postit": {
+            "id": postit_id,
+            "content": content,
+        },
+    })
+
+
+@app.route("/api/postits/<postit_id>", methods=["DELETE"])
+def delete_postit(postit_id):
+    """현재 로그인한 사용자의 post-it을 삭제한다."""
+    user_id = get_session_user_id()
+    if not is_valid_user_id(user_id) or not ObjectId.is_valid(postit_id):
+        return jsonify({"error": "잘못된 요청입니다."}), 400
+
+    deleted = get_retro_model().delete_postit(
+        postit_id=postit_id,
+        user_id=user_id,
+    )
+    if not deleted:
+        return jsonify({"error": "post-it을 찾을 수 없습니다."}), 404
+
+    return jsonify({"success": True})
+
+
+@app.route("/api/retrospectives", methods=["POST"])
+def create_retrospective():
+    """content 영역의 Note를 현재 로그인한 사용자의 회고록으로 저장한다."""
+    user_id = get_session_user_id()
+    if not is_valid_user_id(user_id):
+        return jsonify({"error": "로그인이 필요합니다."}), 401
+
+    data = request.get_json(silent=True) or {}
+    content = data.get("content")
+    if not isinstance(content, str) or not content.strip():
+        return jsonify({"error": "노트 내용을 입력해 주세요."}), 400
+
+    commits_snapshot = data.get("commits_snapshot", [])
+    if not isinstance(commits_snapshot, list):
+        return jsonify({"error": "커밋 정보 형식이 올바르지 않습니다."}), 400
+
+    retrospective_id = get_retro_model().create_retrospective(
+        user_id=user_id,
+        title=data.get("title") or "Note",
+        content=content,
+        commits_snapshot=commits_snapshot,
+    )
+    retrospective = get_retro_model().get_retrospective_detail(retrospective_id)
+
+    return jsonify({
+        "success": True,
+        "retrospective": serialize_retrospective(retrospective),
+    }), 201
+
+
+@app.route("/api/retrospectives/<retro_id>", methods=["GET"])
+def get_retrospective_detail(retro_id):
+    """현재 로그인한 사용자의 Note 상세 내용을 반환한다."""
+    user_id = get_session_user_id()
+    if not is_valid_user_id(user_id) or not ObjectId.is_valid(retro_id):
+        return jsonify({"error": "잘못된 요청입니다."}), 400
+
+    retrospective = get_retro_model().get_retrospective_detail(retro_id)
+    if not retrospective or str(retrospective.get("userId")) != str(user_id):
+        return jsonify({"error": "노트를 찾을 수 없습니다."}), 404
+
+    return jsonify(serialize_retrospective(retrospective))
+
+
+@app.route("/api/retrospectives/<retro_id>", methods=["PUT"])
+def update_retrospective(retro_id):
+    """이미 저장된 Note의 내용을 수정한다."""
+    user_id = get_session_user_id()
+    if not is_valid_user_id(user_id) or not ObjectId.is_valid(retro_id):
+        return jsonify({"error": "잘못된 요청입니다."}), 400
+
+    data = request.get_json(silent=True) or {}
+    content = data.get("content")
+    if not isinstance(content, str) or not content.strip():
+        return jsonify({"error": "노트 내용을 입력해 주세요."}), 400
+
+    model = get_retro_model()
+    retrospective = model.get_retrospective_detail(retro_id)
+    if not retrospective or str(retrospective.get("userId")) != str(user_id):
+        return jsonify({"error": "노트를 찾을 수 없습니다."}), 404
+
+    title = data.get("title") or retrospective.get("title") or "Note"
+    commits_snapshot = data.get("commits_snapshot")
+    if commits_snapshot is None:
+        commits_snapshot = retrospective.get("commits") or []
+    if not isinstance(commits_snapshot, list):
+        return jsonify({"error": "커밋 정보 형식이 올바르지 않습니다."}), 400
+
+    model.update_retrospective(
+        retro_id=retro_id,
+        user_id=user_id,
+        title=title,
+        content=content,
+        commits_snapshot=commits_snapshot,
+    )
+    updated_retrospective = model.get_retrospective_detail(retro_id)
+
+    return jsonify({
+        "success": True,
+        "retrospective": serialize_retrospective(updated_retrospective),
+    })
+
+
+@app.route("/api/retrospectives/<retro_id>", methods=["DELETE"])
+def delete_retrospective(retro_id):
+    """현재 로그인한 사용자의 Note를 삭제한다."""
+    user_id = get_session_user_id()
+    if not is_valid_user_id(user_id) or not ObjectId.is_valid(retro_id):
+        return jsonify({"error": "잘못된 요청입니다."}), 400
+
+    deleted = get_retro_model().delete_retrospective(
+        retro_id=retro_id,
+        user_id=user_id,
+    )
+    if not deleted:
+        return jsonify({"error": "노트를 찾을 수 없습니다."}), 404
+
+    return jsonify({"success": True})
+
 
 @app.route('/dashboard/profile', methods=['GET'])
 def profile():
@@ -631,7 +780,8 @@ def github_commits(owner, repo):
         }), response.status_code
 
     commits = response.json()
-    result = [normalize_commit(commit, repo) for commit in commits]
+    repo_url = f"https://github.com/{owner}/{repo}"
+    result = [normalize_commit(commit, repo, repo_url) for commit in commits]
 
     return jsonify(result)
 
